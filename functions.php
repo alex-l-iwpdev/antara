@@ -5,6 +5,9 @@
  * @package iwpdev/antara
  */
 
+
+use Iwpdev\Antara\Main;
+
 /**
  * Add parent theme styles.
  */
@@ -17,3 +20,7 @@ add_action(
 		}
 	}
 );
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+new Main();
