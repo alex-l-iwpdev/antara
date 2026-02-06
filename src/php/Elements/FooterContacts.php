@@ -1,4 +1,7 @@
 <?php
+/**
+ * Footer Contacts Element class file.
+ */
 
 namespace Iwpdev\Antara\Elements;
 
@@ -8,20 +11,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 } // Exit if accessed directly
 
+/**
+ * Footer Contacts Element class.
+ */
 class FooterContacts extends Element {
 	public $category = 'general';
 	public $name = 'footer-contacts';
 	public $icon = 'ti-id-badge';
 
+	/**
+	 * Get the label of the element.
+	 *
+	 * @return array|string|string[]
+	 */
 	public function get_label() {
 		return esc_html__( 'Footer Contacts', 'bricks' );
 	}
 
-	public function get_keywords() {
+	/**
+	 * Get the keywords for the element.
+	 *
+	 * @return string[]
+	 */
+	public function get_keywords(): array {
 		return [ 'footer', 'contact', 'links', 'social' ];
 	}
 
-	public function set_controls() {
+	/**
+	 * Set the controls available in the Bricks Customizer.
+	 *
+	 * @return void
+	 */
+	public function set_controls(): void {
 		$this->controls['items'] = [
 			'tab'           => 'content',
 			'label'         => esc_html__( 'Contact Items', 'bricks' ),
@@ -78,6 +99,11 @@ class FooterContacts extends Element {
 		];
 	}
 
+	/**
+	 * Render the element.
+	 *
+	 * @return void
+	 */
 	public function render() {
 		$settings = $this->settings;
 
@@ -102,7 +128,7 @@ class FooterContacts extends Element {
 			$link      = ! empty( $item['link'] ) ? $item['link'] : [];
 			$css_class = ! empty( $item['css_class'] ) ? $item['css_class'] : 'footer-menu-link';
 
-			echo '<div class="brxe-ewjegm brxe-div">';
+			echo '<div class="brxe-ewjegm brxe-div contacts-item">';
 
 			if ( ! empty( $link['url'] ) ) {
 				// We don't want to use set_link_attributes because it might add unwanted classes or IDs if not careful
