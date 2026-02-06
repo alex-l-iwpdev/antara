@@ -136,6 +136,10 @@ class FooterContacts extends Element {
 				// To match the requested HTML exactly: <a class="brxe-ctsrko brxe-text-link footer-menu-link" href="..." target="_blank">
 
 				$link_key = 'link-' . $item['_id'];
+
+				// Clear attributes for this key to prevent accumulation
+				$this->attributes[ $link_key ] = [];
+
 				$this->set_link_attributes( $link_key, $link );
 				$this->set_attribute( $link_key, 'class', [ 'brxe-ctsrko', 'brxe-text-link', $css_class ] );
 
