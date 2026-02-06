@@ -39,5 +39,7 @@
     "webfonts-generator": "^0.4.0"
   },
   "dependencies": {
+    "gsap": "^3.14.2",
+    "swiper": "^12.1.0"
   }
 }

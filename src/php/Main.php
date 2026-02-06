@@ -7,6 +7,8 @@
 
 namespace Iwpdev\Antara;
 
+use Bricks\Elements;
+
 /**
  * Main theme class.
  */
@@ -14,7 +16,7 @@ class Main {
 	/**
 	 * Theme version.
 	 */
-	const THEME_VERSION = '1.0.0';
+	const THEME_VERSION = '1.0.6';
 
 	/**
 	 * Mail constructor.
@@ -30,6 +32,139 @@ class Main {
 	 */
 	private function init(): void {
 		add_action( 'wp_enqueue_scripts', [ $this, 'register_scripts_and_styles' ] );
+
+		// Register a dummy Klaviyo dependency early to avoid WP notice if plugin enqueues a script depending on it.
+		add_action( 'wp_enqueue_scripts', [ $this, 'ensure_klaviyo_dependency' ], 1 );
+		add_filter( 'wp_kses_allowed_html', [ $this, 'allow_custom_tags' ], 10, 2 );
+
+		add_filter( 'upload_mimes', [ $this, 'add_mime_types' ] );
+
+		add_filter( 'bricks/setup/control_options', [ $this, 'add_control_options' ] );
+		add_action( 'init', [ $this, 'register_elements' ], 11 );
+
+		add_action( 'add_meta_boxes', [ $this, 'add_mp3_meta_box' ] );
+
+		add_action( 'save_post_product', [ $this, 'save_mp3_meta' ] );
+
+		add_action( 'wp_footer', [ $this, 'print_video_assets_for_inline_script' ] );
+
+		if ( class_exists( 'WooCommerce' ) ) {
+			add_action( 'woocommerce_checkout_update_order_meta', [ $this, 'save_mp3_meta_woo' ] );
+		}
+	}
+
+	/**
+	 * Add MP3 meta box.
+	 *
+	 * @return void
+	 */
+	public function add_mp3_meta_box(): void {
+		add_meta_box(
+			'custom_mp3_uploader',
+			'MP3 Uploader',
+			[ $this, 'render_custom_mp3_uploader' ],
+			'product',
+			'normal',
+			'default',
+		);
+	}
+
+	/**
+	 * Save MP3 meta.
+	 *
+	 * @param $post_id
+	 *
+	 * @return void
+	 */
+	public function save_mp3_meta( $post_id ) {
+		if ( defined( "DOING_AUTOSAVE" ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		if ( isset( $_POST["custom_mp3_url"] ) ) {
+			$value = esc_url_raw( $_POST["custom_mp3_url"] );
+			update_post_meta( $post_id, "my_music", $value );
+		}
+	}
+
+	/**
+	 * Render custom MP3 uploader.
+	 *
+	 * @param $post
+	 *
+	 * @return void
+	 */
+	function render_custom_mp3_uploader( $post ) {
+		$mp3_url = get_post_meta( $post->ID, "my_music", true ); ?>
+		<div>
+			<p>
+				<input
+						type="text"
+						id="custom_mp3_url"
+						name="custom_mp3_url"
+						value="<?php echo esc_attr( $mp3_url ); ?>" style="width: 100%;" readonly>
+			</p>
+			<p>
+				<button type="button" class="button"
+						id="upload_mp3_button"><?php esc_html_e( 'Select MP3', 'bricks' ); ?></button>
+			</p>
+		</div>
+		<script>
+			jQuery( document ).ready( function( $ ) {
+				$( '#upload_mp3_button' ).on( 'click', function( e ) {
+					e.preventDefault();
+					const frame = wp.media( {
+						title: 'Select MP3',
+						multiple: false,
+						library: {
+							type: 'audio'
+						},
+						button: {
+							text: 'Select'
+						}
+					} );
+					frame.on( 'select', function() {
+						const attachment = frame.state().get( 'selection' ).first().toJSON();
+						$( '#custom_mp3_url' ).val( attachment.url );
+					} );
+					frame.open();
+				} );
+			} );
+		</script>
+		<?php
+	}
+
+	/**
+	 * Register Bricks elements.
+	 *
+	 * @return void
+	 */
+	public function register_elements() {
+		if ( ! class_exists( '\Bricks\Elements' ) ) {
+			return;
+		}
+
+		$custom_elements = [
+			__DIR__ . '/Elements/FooterContacts.php',
+		];
+
+		foreach ( $custom_elements as $file ) {
+			if ( file_exists( $file ) ) {
+				Elements::register_element( $file );
+			}
+		}
+	}
+
+	/**
+	 * Add custom control options.
+	 *
+	 * @param array $control_options
+	 *
+	 * @return array
+	 */
+	public function add_control_options( $control_options ) {
+		// Add any custom control options here if needed
+		return $control_options;
 	}
 
 	/**
@@ -39,18 +174,183 @@ class Main {
 	 */
 	public function register_scripts_and_styles(): void {
 
+		if ( bricks_is_builder_main() ) {
+			return;
+		}
+
 		wp_enqueue_script(
 			'bricks-child-app',
 			get_stylesheet_directory_uri() . '/assets/js/app.js',
 			[
-				'bricks-frontend',
 				'jquery',
+				'bricks-scripts',
 			],
 			self::THEME_VERSION,
 			true
 		);
 
 		wp_enqueue_style( 'bricks-child-style', get_stylesheet_directory_uri() . '/assets/css/app.css', [ 'bricks-frontend' ] );
+	}
+
+	/**
+	 * @param $mimes
+	 *
+	 * @return mixed
+	 */
+	public function add_mime_types( array $mimes ) {
+		$mimes['svg'] = 'image/svg+xml';
+
+		return $mimes;
+	}
+
+	/**
+	 * Ensure the Klaviyo dependency handle exists to satisfy plugin dependencies
+	 * without actually loading a script if the plugin forgot to register it.
+	 */
+	public function ensure_klaviyo_dependency(): void {
+		if ( ! wp_script_is( 'klaviyojs', 'registered' ) ) {
+			// Register a no-op handle so dependent scripts can be enqueued without notice
+			wp_register_script( 'klaviyojs', false, [], null );
+		}
+	}
+
+	/**
+	 * Print video assets for an inline script
+	 *
+	 * @return void
+	 */
+	public function print_video_assets_for_inline_script() {
+		$video_data = [
+			"desktop_video"  => content_url( "/uploads/2025/04/16-9-web-loop_OK.mp4" ),
+			"mobile_video"   => content_url( "/uploads/2025/04/4-5-web-loop_OK-.mp4" ),
+			"desktop_poster" => content_url( "/uploads/2025/04/Background.avif" ),
+			"mobile_poster"  => content_url( "/uploads/2025/04/bgmob.avif" ),
+		];
+
+		// 2. Displaying the data on the page inside the <script>tag
+		// json_encode turns a PHP array into a secure JSON object for JS
+		?>
+		<script id="video-assets-data">
+			const videoAssets = <?php echo json_encode( $video_data ); ?>;
+		</script>
+		<?php
+	}
+
+	public function allow_custom_tags( $tags, $context ) {
+		if ( 'post' === $context ) {
+			$tags['svg']      = [
+				'xmlns'           => true,
+				'viewbox'         => true,
+				'width'           => true,
+				'height'          => true,
+				'fill'            => true,
+				'stroke'          => true,
+				'stroke-width'    => true,
+				'stroke-linecap'  => true,
+				'stroke-linejoin' => true,
+				'class'           => true,
+				'style'           => true,
+				'aria-hidden'     => true,
+				'role'            => true,
+				'focusable'       => true,
+			];
+			$tags['path']     = [
+				'd'               => true,
+				'fill'            => true,
+				'stroke'          => true,
+				'stroke-width'    => true,
+				'stroke-linecap'  => true,
+				'stroke-linejoin' => true,
+			];
+			$tags['circle']   = [
+				'cx'              => true,
+				'cy'              => true,
+				'r'               => true,
+				'fill'            => true,
+				'stroke'          => true,
+				'stroke-width'    => true,
+				'stroke-linecap'  => true,
+				'stroke-linejoin' => true,
+			];
+			$tags['rect']     = [
+				'x'               => true,
+				'y'               => true,
+				'width'           => true,
+				'height'          => true,
+				'fill'            => true,
+				'stroke'          => true,
+				'stroke-width'    => true,
+				'stroke-linecap'  => true,
+				'stroke-linejoin' => true,
+			];
+			$tags['polygon']  = [
+				'points'          => true,
+				'fill'            => true,
+				'stroke'          => true,
+				'stroke-width'    => true,
+				'stroke-linecap'  => true,
+				'stroke-linejoin' => true,
+			];
+			$tags['polyline'] = [
+				'points'          => true,
+				'fill'            => true,
+				'stroke'          => true,
+				'stroke-width'    => true,
+				'stroke-linecap'  => true,
+				'stroke-linejoin' => true,
+			];
+			$tags['line']     = [
+				'x1'              => true,
+				'y1'              => true,
+				'x2'              => true,
+				'y2'              => true,
+				'fill'            => true,
+				'stroke'          => true,
+				'stroke-width'    => true,
+				'stroke-linecap'  => true,
+				'stroke-linejoin' => true,
+			];
+			$tags['g']        = [
+				'fill'            => true,
+				'stroke'          => true,
+				'stroke-width'    => true,
+				'stroke-linecap'  => true,
+				'stroke-linejoin' => true,
+			];
+			$tags['defs']     = [];
+			$tags['title']    = [];
+			$tags['desc']     = [];
+			$tags['style']    = [];
+			$tags['use']      = [
+				'xlink:href' => true,
+				'href'       => true, // For modern SVG use
+			];
+		}
+
+		return $tags;
+	}
+
+	/**
+	 * Save meta data for gift cards
+	 *
+	 * @param $order_id
+	 *
+	 * @return void
+	 */
+	public function save_mp3_meta_woo( $order_id ): void {
+		$order = wc_get_order( $order_id );
+		foreach ( $order->get_items() as $item ) {
+			$product = $item->get_product();
+			if ( ! $product ) {
+				continue;
+			}
+
+			if ( has_term( 'gift-cards', 'product_cat', $product->get_id() ) ) {
+				$order->update_meta_data( 'is_gift_card_order', 'yes' );
+				$order->save();
+				break;
+			}
+		}
 	}
 
 }
