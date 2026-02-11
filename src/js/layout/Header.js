@@ -1,27 +1,30 @@
 const Header = ( $ ) => {
+	// Предотвращаем повторную инициализацию
+	const body = document.body;
+	if ( body && body.dataset.headerInitialized === 'true' ) return;
+	if ( body ) body.dataset.headerInitialized = 'true';
 
 	const menuBtn = document.querySelector( '.btn-menu' );
+	const header = document.querySelector( '.header' );
 	if ( menuBtn ) {
-		menuBtn.addEventListener( 'click', function() {
+		const onMenuClick = function() {
 			this.classList.toggle( 'active' );
-
-			const header = document.querySelector( 'header' );
-			if ( header ) {
-				header.classList.toggle( 'active' );
-			}
-		} );
+			const headerEl = document.querySelector( 'header' );
+			if ( headerEl ) headerEl.classList.toggle( 'active' );
+		};
+		menuBtn.addEventListener( 'click', onMenuClick );
+		window.addEventListener( 'pagehide', () => {
+			menuBtn.removeEventListener( 'click', onMenuClick );
+		}, { once: true } );
 	}
 
 	function updateMenuPadding() {
-		const header = document.querySelector( '.header' );
+		const headerEl = document.querySelector( '.header' );
 		const menus = document.querySelectorAll( '.menu-open, .menu-open-mobil' );
-
-		if ( header && menus.length > 0 ) {
-			const headerHeight = header.offsetHeight;
-
+		if ( headerEl && menus.length > 0 ) {
+			const headerHeight = headerEl.offsetHeight;
 			menus.forEach( ( menu ) => {
 				menu.style.paddingTop = `${headerHeight}px`;
-
 				const menuHeight = menu.scrollHeight;
 				document.documentElement.style.setProperty(
 					`--menu-height-${menu.classList.contains( 'menu-open-mobil' ) ? 'mobil' : 'desktop'}`,
@@ -32,36 +35,33 @@ const Header = ( $ ) => {
 	}
 
 	updateMenuPadding();
-	window.addEventListener( 'resize', updateMenuPadding );
+	const onResize = () => updateMenuPadding();
+	window.addEventListener( 'resize', onResize );
 
-	// Change getElementById to querySelector and specify a class with a dot in front of it
-	const header = document.querySelector( '.header' );
 	if ( ! header ) return; // Check if there is a header on the page
-
 	let lastScrollY = window.scrollY; // Previous scroll position
 	const scrollThreshold = window.innerHeight * 0.03; // 3% of browser window height
 
-	window.addEventListener( 'scroll', () => {
+	const onScroll = () => {
 		const currentScrollY = window.scrollY;
-
-		// If the scroll is less than 3% from the top of the page, the header is always visible
 		if ( currentScrollY < scrollThreshold ) {
 			header.classList.remove( 'header-hidden' );
 			lastScrollY = currentScrollY;
 			return;
 		}
-
-		// The logic of hiding/appearing when scrolling
 		if ( currentScrollY > lastScrollY ) {
-			// Scroll down
 			header.classList.add( 'header-hidden' );
 		} else {
-			// Scroll up
 			header.classList.remove( 'header-hidden' );
 		}
-
 		lastScrollY = currentScrollY;
-	} );
+	};
+	window.addEventListener( 'scroll', onScroll, { passive: true } );
+
+	window.addEventListener( 'pagehide', () => {
+		window.removeEventListener( 'resize', onResize );
+		window.removeEventListener( 'scroll', onScroll );
+	}, { once: true } );
 };
 
 export default Header;

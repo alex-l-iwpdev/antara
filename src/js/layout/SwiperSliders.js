@@ -1,7 +1,24 @@
 import Swiper from 'swiper';
 
 const SwiperSliders = ( $ ) => {
-	const swiper = new Swiper( '.event-slider-sound', {
+	const body = document.body;
+	if ( body && body.dataset.swipersInitialized === 'true' ) {
+		return;
+	}
+	if ( body ) body.dataset.swipersInitialized = 'true';
+
+	let swipers = [];
+	const maybeInit = ( selector, options ) => {
+		if ( ! document.querySelector( selector ) ) return;
+		try {
+			const s = new Swiper( selector, options );
+			swipers.push( s );
+		} catch ( e ) {
+			console.warn( 'Swiper init failed for', selector, e );
+		}
+	};
+
+	maybeInit( '.event-slider-sound', {
 		slidesPerView: 'auto',
 		spaceBetween: 0,
 		navigation: {
@@ -10,7 +27,7 @@ const SwiperSliders = ( $ ) => {
 		},
 	} );
 
-	const swiper2 = new Swiper( '.event-slider-gong', {
+	maybeInit( '.event-slider-gong', {
 		slidesPerView: 'auto',
 		spaceBetween: 0,
 		navigation: {
@@ -19,7 +36,7 @@ const SwiperSliders = ( $ ) => {
 		},
 	} );
 
-	const swiper3 = new Swiper( '.event-slider-circles', {
+	maybeInit( '.event-slider-circles', {
 		slidesPerView: 'auto',
 		spaceBetween: 0,
 		navigation: {
@@ -27,6 +44,18 @@ const SwiperSliders = ( $ ) => {
 			prevEl: '.event-slider-circles_arrow-left',
 		},
 	} );
+
+	const cleanup = () => {
+		swipers.forEach( ( s ) => {
+			try {
+				s.destroy( true, true );
+			} catch ( e ) {
+			}
+		} );
+		swipers = [];
+	};
+	window.addEventListener( 'pagehide', cleanup, { once: true } );
+	window.addEventListener( 'beforeunload', cleanup, { once: true } );
 };
 
 export default SwiperSliders;

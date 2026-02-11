@@ -1,6 +1,15 @@
 import gsap from 'gsap';
 
 const Anchors = ( $ ) => {
+	// Prevent double initialization in case of partial reloads
+	const body = document.body;
+	if ( body && body.dataset.anchorsInitialized === 'true' ) {
+		return;
+	}
+	if ( body ) {
+		body.dataset.anchorsInitialized = 'true';
+	}
+
 	const sidebarItems = document.querySelectorAll( '.sidebar-item' );
 	const sections = document.querySelectorAll( 'section[id], div[id].brxe-section' );
 	const header = document.querySelector( '.header, header' );
@@ -95,29 +104,41 @@ const Anchors = ( $ ) => {
 	const selector = 'a.sidebar-item[href^="#"], a[data-brx-anchor][href^="#"], .sidebar a[href^="#"]';
 	const links = Array.from( document.querySelectorAll( selector ) );
 
-	links.forEach( ( link ) => {
-		link.addEventListener(
-			'click',
-			( e ) => {
-				const href = link.getAttribute( 'href' ) || '';
-				if ( ! href.startsWith( '#' ) ) return;
-				const id = href.slice( 1 );
-				const target = document.getElementById( id );
-				if ( ! target ) return;
+	const handleClick = ( e ) => {
+		const link = e.currentTarget;
+		const href = link.getAttribute( 'href' ) || '';
+		if ( ! href.startsWith( '#' ) ) return;
+		const id = href.slice( 1 );
+		const target = document.getElementById( id );
+		if ( ! target ) return;
 
-				e.preventDefault();
-				e.stopPropagation();
-				e.stopImmediatePropagation();
-				scrollToId( id );
-			},
-			true,
-		);
+		e.preventDefault();
+		e.stopPropagation();
+		e.stopImmediatePropagation();
+		scrollToId( id );
+	};
+
+	links.forEach( ( link ) => {
+		link.addEventListener( 'click', handleClick, true );
 	} );
 
 	if ( window.location.hash && window.location.hash.length > 1 ) {
 		const id = decodeURIComponent( window.location.hash.slice( 1 ) );
 		setTimeout( () => scrollToId( id ), 100 );
 	}
+
+	// Cleanup on page hide/unload to avoid lingering observers and duplicate listeners
+	const cleanup = () => {
+		try {
+			observer.disconnect();
+		} catch ( e ) {
+		}
+		links.forEach( ( link ) => {
+			link.removeEventListener( 'click', handleClick, true );
+		} );
+	};
+	window.addEventListener( 'pagehide', cleanup, { once: true } );
+	window.addEventListener( 'beforeunload', cleanup, { once: true } );
 };
 
 export default Anchors;

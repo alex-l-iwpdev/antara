@@ -91,15 +91,43 @@ const Scroll = ( $ ) => {
 				// Клонируем в конец, пока суммарная ширина не покроет нужный диапазон (2*unit + containerWidth)
 				let totalWidth = wrapper.scrollWidth;
 				const minTotalWidth = unitWidth * 2 + containerWidth;
+				const maxTotalWidth = Math.max( minTotalWidth, containerWidth * 5 ); // Защитный лимит
 
-				while ( totalWidth < minTotalWidth ) {
-					items.forEach( ( item ) => {
-						const cloneEnd = item.cloneNode( true );
-						cloneEnd.classList.add( 'scroller-clone' );
-						processClone( cloneEnd );
-						wrapper.appendChild( cloneEnd );
-					} );
-					totalWidth = wrapper.scrollWidth;
+				if ( ! unitWidth || unitWidth < 5 ) {
+					console.warn( 'Scroll.js: unitWidth слишком мал или 0, пропускаю клонирование' );
+				} else {
+					let guard = 0;
+					let lastTotalWidth = totalWidth;
+					let clonesSetsAdded = 0;
+					const maxSets = 20; // Максимум 20 повторений набора элементов
+
+					while ( totalWidth < minTotalWidth && totalWidth < maxTotalWidth ) {
+						if ( guard++ > 100 ) {
+							console.error( 'Scroll.js: защита от зависания при клонировании (100 итераций)' );
+							break;
+						}
+						if ( clonesSetsAdded >= maxSets ) {
+							console.warn( 'Scroll.js: Достигнут лимит наборов клонов (maxSets)' );
+							break;
+						}
+
+						items.forEach( ( item ) => {
+							const cloneEnd = item.cloneNode( true );
+							cloneEnd.classList.add( 'scroller-clone' );
+							processClone( cloneEnd );
+							wrapper.appendChild( cloneEnd );
+						} );
+
+						clonesSetsAdded++;
+						const newTotal = wrapper.scrollWidth;
+						if ( newTotal <= lastTotalWidth ) {
+							console.warn( 'Scroll.js: scrollWidth не растёт, останавливаю клонирование' );
+							break;
+						}
+						totalWidth = newTotal;
+						lastTotalWidth = newTotal;
+					}
+					console.log( `Scroll.js [${index}]: Клонирование завершено. Наборов добавлено: ${clonesSetsAdded}, итоговая ширина: ${totalWidth}` );
 				}
 			}
 
@@ -112,7 +140,7 @@ const Scroll = ( $ ) => {
 			const baseSpeedPx = 1.0;
 			const speedFactor = 0.1;
 
-			window.addEventListener( 'scroll', () => {
+			const onScroll = () => {
 				const st = window.scrollY;
 				let delta = st - lastScrollTop;
 				lastScrollTop = st;
@@ -121,11 +149,27 @@ const Scroll = ( $ ) => {
 				if ( Math.abs( delta ) > maxDelta ) delta = maxDelta * Math.sign( delta );
 
 				momentum += delta * speedFactor;
-			}, { passive: true } );
+			};
+			window.addEventListener( 'scroll', onScroll, { passive: true } );
 
 			const xSetter = gsap.quickSetter( wrapper, 'x', 'px' );
 
+			let docVisible = document.visibilityState === 'visible';
+			let inView = true;
+			const onVisibility = () => {
+				docVisible = document.visibilityState === 'visible';
+			};
+			document.addEventListener( 'visibilitychange', onVisibility );
+
+			const io = new IntersectionObserver( ( entries ) => {
+				entries.forEach( ( entry ) => {
+					if ( entry.target === scroller ) inView = entry.isIntersecting;
+				} );
+			} );
+			io.observe( scroller );
+
 			const update = () => {
+				if ( ! ( docVisible && inView ) ) return;
 				if ( ! unit ) {
 					unit = getUnitWidth();
 					if ( ! unit ) return;
@@ -151,10 +195,6 @@ const Scroll = ( $ ) => {
 
 				// Декей импульса
 				momentum *= Math.pow( 0.9, dt );
-
-				if ( gsap.ticker.frame % 300 === 0 && index === 0 ) {
-					console.log( `Scroll.js [0]: unit=${unit.toFixed( 1 )}, pos=${pos.toFixed( 1 )}, v=${currentVelocity.toFixed( 2 )}` );
-				}
 			};
 
 			gsap.ticker.add( update );
@@ -183,9 +223,28 @@ const Scroll = ( $ ) => {
 			} );
 
 			// Пересчет при изменении размера окна
-			window.addEventListener( 'resize', () => {
+			const onResize = () => {
 				recalc();
-			} );
+			};
+			window.addEventListener( 'resize', onResize );
+
+			// Cleanup listeners and ticker on page hide
+			const cleanup = () => {
+				gsap.ticker.remove( update );
+				document.removeEventListener( 'visibilitychange', onVisibility );
+				try {
+					io.disconnect();
+				} catch ( e ) {
+				}
+				try {
+					ro.disconnect();
+				} catch ( e ) {
+				}
+				window.removeEventListener( 'scroll', onScroll );
+				window.removeEventListener( 'resize', onResize );
+			};
+			window.addEventListener( 'pagehide', cleanup, { once: true } );
+			window.addEventListener( 'beforeunload', cleanup, { once: true } );
 		} );
 	};
 
