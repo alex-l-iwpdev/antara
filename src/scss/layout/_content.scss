@@ -22,7 +22,41 @@ $background-color_7: #33333300;
     transform: translate(calc(-50%));
   }
 }
-
+.btn-menu-line-bottom.brxe-div,
+.btn-menu-line-top.brxe-div{
+  background: #fff !important;
+}
+#brxe-oqyeoa {
+  color: #fff;
+}
+.Language-wrapper{
+  position: relative;
+  color: #fff;
+  min-width: max-content;
+  cursor: pointer;
+  svg{
+    margin-left: auto;
+  }
+  &:hover{
+    .brxe-polylang-language-switcher{
+      display: block;
+    }
+  }
+  .brxe-polylang-language-switcher{
+    position: absolute;
+    top: 100%;
+    gap: 0;
+    padding-left: 35px;
+    display: none;
+    @media (max-width: 768px) {
+      font-size: 14px;
+      padding-left: 25px;
+    }
+  }
+  .current-lang{
+    display: none;
+  }
+}
 /* Класс для скрытия хедера */
 body {
   background-color: $background-color_1;

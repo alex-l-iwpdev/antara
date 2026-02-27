@@ -135,7 +135,7 @@ class FooterContacts extends Element {
 				// but it is the standard way in Bricks.
 				// To match the requested HTML exactly: <a class="brxe-ctsrko brxe-text-link footer-menu-link" href="..." target="_blank">
 
-				$link_key = 'link-' . $item['_id'];
+				$link_key = 'link-' . $item['id'];
 
 				// Clear attributes for this key to prevent accumulation
 				$this->attributes[ $link_key ] = [];

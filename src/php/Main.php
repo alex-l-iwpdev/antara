@@ -8,6 +8,7 @@
 namespace Iwpdev\Antara;
 
 use Bricks\Elements;
+use Iwpdev\Antara\Modules\GeoContent;
 use WP_Post;
 
 /**
@@ -17,13 +18,19 @@ class Main {
 	/**
 	 * Theme version.
 	 */
-	const THEME_VERSION = '1.0.8';
+	const THEME_VERSION = '1.0.11';
 
 	/**
 	 * Internal flag to avoid infinite loops while syncing WPML statuses.
 	 * @var bool
 	 */
 	private $wpml_sync_in_progress = false;
+
+	/**
+	 * Internal flag to avoid infinite loops while syncing Polylang statuses.
+	 * @var bool
+	 */
+	private $pll_sync_in_progress = false;
 
 	/**
 	 * Mail constructor.
@@ -38,6 +45,8 @@ class Main {
 	 * @return void
 	 */
 	private function init(): void {
+		new GeoContent();
+
 		add_action( 'wp_enqueue_scripts', [ $this, 'register_scripts_and_styles' ] );
 
 		// Register a dummy Klaviyo dependency early to avoid WP notice if plugin enqueues a script depending on it.
@@ -61,6 +70,8 @@ class Main {
 
 		// When an EN page/post is moved to draft, also draft all its translations (WPML).
 		add_action( 'transition_post_status', [ $this, 'sync_wpml_translations_to_draft' ], 10, 3 );
+		// Do the same for Polylang translations.
+		add_action( 'transition_post_status', [ $this, 'sync_pll_translations_to_draft' ], 10, 3 );
 	}
 
 	/**
@@ -197,6 +208,16 @@ class Main {
 				],
 				self::THEME_VERSION,
 				true
+		);
+
+		wp_localize_script(
+				'bricks-child-app',
+				'appData',
+				[
+						'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+						'actionGeo'  => GeoContent::GEO_CONTENT_ACTION_AND_NONCE,
+						'nonceGeo'   => wp_create_nonce( GeoContent::GEO_CONTENT_ACTION_AND_NONCE ),
+				]
 		);
 
 		wp_enqueue_style( 'bricks-child-style', get_stylesheet_directory_uri() . '/assets/css/app.css', [ 'bricks-frontend' ] );
@@ -444,6 +465,76 @@ class Main {
 			}
 		}
 		$this->wpml_sync_in_progress = false;
+	}
+
+	/**
+	 * Если английская версия страницы/записи переводится в черновик —
+	 * перевести в черновик все её переводы (Polylang).
+	 *
+	 * @param string  $new_status Новый статус.
+	 * @param string  $old_status Старый статус.
+	 * @param WP_Post $post       Объект записи.
+	 *
+	 * @return void
+	 */
+	public function sync_pll_translations_to_draft( $new_status, $old_status, $post ): void {
+		// Избегаем рекурсии
+		if ( $this->pll_sync_in_progress ) {
+			return;
+		}
+
+		// Реагируем только на переход в статус draft из иного статуса
+		if ( 'draft' !== $new_status || 'draft' === $old_status ) {
+			return;
+		}
+
+		if ( ! $post instanceof WP_Post ) {
+			return;
+		}
+
+		// Игнорируем автосохранения и ревизии
+		if ( wp_is_post_autosave( $post->ID ) || wp_is_post_revision( $post->ID ) ) {
+			return;
+		}
+
+		$post_type = get_post_type( $post );
+		// Только для стандартных типов записей, как и в WPML-версии
+		if ( ! in_array( $post_type, [ 'post', 'page' ], true ) ) {
+			return;
+		}
+
+		// Убедимся, что Polylang активен
+		if ( ! function_exists( 'pll_get_post_language' ) || ! function_exists( 'pll_get_post_translations' ) ) {
+			return;
+		}
+
+		// Определяем язык исходной записи
+		$lang = pll_get_post_language( $post->ID, 'slug' );
+		if ( 'en' !== $lang ) {
+			return; // Срабатываем только для английского источника
+		}
+
+		$translations = pll_get_post_translations( $post->ID ); // [ lang => post_id ]
+		if ( empty( $translations ) || ! is_array( $translations ) ) {
+			return;
+		}
+
+		$this->pll_sync_in_progress = true;
+		foreach ( $translations as $lang_code => $translated_post_id ) {
+			$translated_post_id = (int) $translated_post_id;
+			if ( $translated_post_id === (int) $post->ID ) {
+				continue; // Пропускаем исходную EN-запись
+			}
+
+			$current_status = get_post_status( $translated_post_id );
+			if ( 'draft' !== $current_status ) {
+				wp_update_post( [
+						'ID'          => $translated_post_id,
+						'post_status' => 'draft',
+				] );
+			}
+		}
+		$this->pll_sync_in_progress = false;
 	}
 
 }

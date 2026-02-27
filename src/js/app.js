@@ -22,11 +22,13 @@ import Music from './layout/Music.js';
 import Forms from './layout/Forms.js';
 import Scroll from './layout/Scroll.js';
 import Anchors from './layout/Anchors.js';
+import Language from './layout/language.js';
 import TabsMenu from './layout/TabsMenu.js';
 import HorizontalScroll from './layout/HorizontalScroll.js';
 import SwiperSliders from './layout/SwiperSliders.js';
 import Tabs from './layout/Tabs.js';
 import Modal from './layout/Modal.js';
+import GeoContent from './layout/GeoContent.js';
 
 ( ( $ ) => {
 	$( () => {
@@ -42,6 +44,8 @@ import Modal from './layout/Modal.js';
 			SwiperSliders( $ );
 			Tabs( $ );
 			Modal( $ );
+			Language($);
+			GeoContent($);
 		} catch ( e ) {
 			console.error( 'Ошибка инициализации модулей:', e );
 		}

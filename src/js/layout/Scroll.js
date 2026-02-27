@@ -5,19 +5,15 @@ const Scroll = ( $ ) => {
 
 	const initScrollBasedScroller = () => {
 		const scrollers = document.querySelectorAll( '.scroller' );
-		console.log( 'Scroll.js: Найдено скроллеров:', scrollers.length );
 
 		scrollers.forEach( ( scroller, index ) => {
-			console.log( `Scroll.js [${index}]: Инициализация...` );
 			if ( scroller.dataset.initialized ) {
-				console.log( `Scroll.js [${index}]: Уже инициализирован.` );
 				return;
 			}
 			scroller.dataset.initialized = 'true';
 
 			const wrapper = scroller.querySelector( '.scroller-wrapper' );
 			if ( ! wrapper ) {
-				console.error( `Scroll.js: Скроллер ${index} не имеет .scroller-wrapper` );
 				return;
 			}
 
@@ -77,8 +73,6 @@ const Scroll = ( $ ) => {
 			// Сохраняем ширину оригинального контента (unit)
 			let unitWidth = getUnitWidth();
 
-			console.log( `Scroll.js [${index}]: Начальная ширина (unit):`, unitWidth, 'Контейнер:', containerWidth );
-
 			if ( items.length > 0 ) {
 				// Один набор клонов в начало (нужен для бесшовности при x = -unit)
 				items.slice().reverse().forEach( ( item ) => {
@@ -94,7 +88,6 @@ const Scroll = ( $ ) => {
 				const maxTotalWidth = Math.max( minTotalWidth, containerWidth * 5 ); // Защитный лимит
 
 				if ( ! unitWidth || unitWidth < 5 ) {
-					console.warn( 'Scroll.js: unitWidth слишком мал или 0, пропускаю клонирование' );
 				} else {
 					let guard = 0;
 					let lastTotalWidth = totalWidth;
@@ -103,11 +96,9 @@ const Scroll = ( $ ) => {
 
 					while ( totalWidth < minTotalWidth && totalWidth < maxTotalWidth ) {
 						if ( guard++ > 100 ) {
-							console.error( 'Scroll.js: защита от зависания при клонировании (100 итераций)' );
 							break;
 						}
 						if ( clonesSetsAdded >= maxSets ) {
-							console.warn( 'Scroll.js: Достигнут лимит наборов клонов (maxSets)' );
 							break;
 						}
 
@@ -121,13 +112,11 @@ const Scroll = ( $ ) => {
 						clonesSetsAdded++;
 						const newTotal = wrapper.scrollWidth;
 						if ( newTotal <= lastTotalWidth ) {
-							console.warn( 'Scroll.js: scrollWidth не растёт, останавливаю клонирование' );
 							break;
 						}
 						totalWidth = newTotal;
 						lastTotalWidth = newTotal;
 					}
-					console.log( `Scroll.js [${index}]: Клонирование завершено. Наборов добавлено: ${clonesSetsAdded}, итоговая ширина: ${totalWidth}` );
 				}
 			}
 
