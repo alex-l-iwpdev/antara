@@ -99,8 +99,15 @@ class GeoContent {
 
 		$geo_api = new GeoIpApi();
 		$ip      = $_SERVER['REMOTE_ADDR'] ?? $_SERVER['HTTP_X_REAL_IP'];
+		if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+			$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		}
+
+		error_log( 'IP: ' . $ip );
+		error_log( print_r($_SERVER, true) );
 
 		$country       = $geo_api->get_geo_info( $ip );
+		error_log( 'Country: ' . $country );
 		$country       = strtoupper( $country ?: 'default' );
 		$content_array = [];
 		foreach ( $ids as $id ) {
