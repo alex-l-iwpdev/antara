@@ -18,7 +18,7 @@ class Main {
 	/**
 	 * Theme version.
 	 */
-	const THEME_VERSION = '1.0.14';
+	const THEME_VERSION = '1.0.15';
 
 	/**
 	 * Internal flag to avoid infinite loops while syncing WPML statuses.
