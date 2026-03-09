@@ -31,8 +31,11 @@ const BackgroundBlur = ( $ ) => {
 			const t = gsap.to( el, {
 				x: gsap.utils.random( -vw / 2, vw / 2 ),
 				y: gsap.utils.random( -vh / 2, vh / 2 ),
+				z: 0.1, // принудительное 3D ускорение для Safari
+				rotation: 0.01, // еще один хак для стабилизации рендеринга в Safari
 				duration: gsap.utils.random( 20, 50 ),
 				ease: 'sine.inOut',
+				force3D: true,
 				onComplete: move,
 			} );
 			tweens.set( el, t );
