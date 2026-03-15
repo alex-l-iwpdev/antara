@@ -29,6 +29,74 @@ const Language = ( $ ) => {
 			document.cookie = `pll_language=${browserLang}; expires=${date.toUTCString()}; path=/`;
 		}
 	}
+
+	document.querySelectorAll( '.services_tab_open-item' ).forEach( ( tab ) => {
+		const btn = tab.querySelector( '.services_tab_open-btn' );
+		const info = tab.querySelector( '.services_tab_open-info' );
+		const translateSrting = {
+			'es': {
+				'open': 'Leer más',
+				'close': 'Leer menos',
+			},
+			'en': {
+				'open': 'Read more',
+				'close': 'Read less',
+			},
+			'nl': {
+				'open': 'Meer lezen',
+				'close': 'Toon minder',
+			},
+			'fr': {
+				'open': 'En savoir plus',
+				'close': 'Masquer',
+			}
+		};
+
+		const getCookie = ( name ) => {
+			const value = `; ${document.cookie}`;
+			const parts = value.split( `; ${name}=` );
+			if ( parts.length === 2 ) return parts.pop().split( ';' ).shift();
+		};
+
+		const lang = getCookie( 'pll_language' ) || 'nl'; // По умолчанию nl, как указано в описании
+		const translations = translateSrting[lang] || translateSrting['en'];
+
+
+		// Проверка осталась, а сообщение в консоль - убрали
+		if ( ! btn || ! info ) {
+			return;
+		}
+
+		const text = btn.querySelector( '.text' );
+		const icon = btn.querySelector( '.icon' );
+
+		if ( ! text || ! icon ) {
+			return;
+		}
+
+		let isOpen = false;
+
+		console.log('cookie lang: ', lang);
+		console.log('text: ', text);
+
+		// Устанавливаем начальное значение текста
+		text.textContent = translations.open;
+
+		btn.addEventListener( 'click', () => {
+			console.log('click', isOpen);
+			if ( ! isOpen ) {
+				info.style.height = info.scrollHeight + 'px';
+				text.textContent = translations.close;
+				icon.textContent = '–';
+				isOpen = true;
+			} else {
+				info.style.height = '0px';
+				text.textContent = translations.open;
+				icon.textContent = '+';
+				isOpen = false;
+			}
+		} );
+	} );
 };
 
 export default Language;
