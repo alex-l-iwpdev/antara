@@ -34,15 +34,30 @@ const Modal = ( $ ) => {
 	let topHideTimer = null;
 
 	// --- LOGIC 1: modal-top after 5 seconds, disappears after 10 ---
-	topShowTimer = setTimeout( () => {
-		if ( ! modalTopShown && modalTop ) {
-			showBanner( modalTop );
-			modalTopShown = true;
-			topHideTimer = setTimeout( () => {
+	const modalTopClosed = localStorage.getItem( 'modalTopClosed' ) === 'true';
+
+	if ( ! modalTopClosed && modalTop ) {
+		topShowTimer = setTimeout( () => {
+			if ( ! modalTopShown && modalTop ) {
+				showBanner( modalTop );
+				modalTopShown = true;
+				topHideTimer = setTimeout( () => {
+					hideBanner( modalTop );
+					localStorage.setItem( 'modalTopClosed', 'true' );
+				}, 10000 );
+			}
+		}, 5000 );
+
+		// Close button listener
+		modalTop.addEventListener( 'click', ( e ) => {
+			// Check if clicked element has 'close' or 'close-button' class or is a button with 'close'
+			if ( e.target.closest( '.close' ) || e.target.closest( '.close-button' ) || e.target.closest( '.close-modal' ) || e.target.closest( '[data-modal-close]' ) ) {
 				hideBanner( modalTop );
-			}, 10000 );
-		}
-	}, 5000 );
+				localStorage.setItem( 'modalTopClosed', 'true' );
+				if ( topHideTimer ) clearTimeout( topHideTimer );
+			}
+		} );
+	}
 
 	// Единый обработчик scroll для двух логик ниже
 	const onScroll = () => {
