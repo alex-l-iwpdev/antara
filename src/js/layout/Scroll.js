@@ -5,11 +5,13 @@ const Scroll = ( $ ) => {
 
 	const initScrollBasedScroller = () => {
 		const scrollers = document.querySelectorAll( '.scroller' );
+		console.log( `Scroll: Found ${scrollers.length} scrollers` );
 
 		scrollers.forEach( ( scroller, index ) => {
 			if ( scroller.dataset.initialized ) {
 				return;
 			}
+			console.log( `Scroll: Initializing scroller ${index}` );
 			scroller.dataset.initialized = 'true';
 
 			const wrapper = scroller.querySelector( '.scroller-wrapper' );
@@ -161,6 +163,7 @@ const Scroll = ( $ ) => {
 				if ( ! ( docVisible && inView ) ) return;
 				if ( ! unit ) {
 					unit = getUnitWidth();
+					console.log( 'Scroll: update unit width:', unit );
 					if ( ! unit ) return;
 				}
 				const dt = gsap.ticker.deltaRatio();

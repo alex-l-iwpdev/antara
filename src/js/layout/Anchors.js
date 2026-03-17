@@ -62,18 +62,38 @@ const Anchors = ( $ ) => {
 	};
 
 	const scrollToId = ( id ) => {
+		console.log( 'Anchors: scrollToId called with id:', id );
 		if ( ! id ) return;
 		const target = document.getElementById( id );
-		if ( ! target ) return;
+		if ( ! target ) {
+			console.warn( 'Anchors: target element not found for id:', id );
+			return;
+		}
+
+		// Disable smooth scroll temporarily to avoid conflicts
+		const html = document.documentElement;
+		const originalScrollBehavior = html.style.scrollBehavior;
+		html.style.scrollBehavior = 'auto';
 
 		const extraOffset = getHeaderOffset() + 100;
 		const rect = target.getBoundingClientRect();
 		const absoluteY = window.scrollY + rect.top - extraOffset;
 
+		console.log( 'Anchors: scrolling to absoluteY:', absoluteY, 'rect.top:', rect.top, 'offset:', extraOffset );
+
 		gsap.to( window, {
 			duration: 2.5,
 			ease: 'power4.inOut',
-			scrollTo: { y: absoluteY, autoKill: true },
+			scrollTo: { y: absoluteY, autoKill: false },
+			onStart: () => console.log( 'Anchors: GSAP scroll started' ),
+			onComplete: () => {
+				console.log( 'Anchors: GSAP scroll completed' );
+				html.style.scrollBehavior = originalScrollBehavior;
+			},
+			onInterrupt: () => {
+				console.warn( 'Anchors: GSAP scroll interrupted' );
+				html.style.scrollBehavior = originalScrollBehavior;
+			},
 		} );
 	};
 
@@ -107,11 +127,16 @@ const Anchors = ( $ ) => {
 	const handleClick = ( e ) => {
 		const link = e.currentTarget;
 		const href = link.getAttribute( 'href' ) || '';
+		console.log( 'Anchors: click detected on', link, 'href:', href );
 		if ( ! href.startsWith( '#' ) ) return;
 		const id = href.slice( 1 );
 		const target = document.getElementById( id );
-		if ( ! target ) return;
+		if ( ! target ) {
+			console.warn( 'Anchors: target for anchor not found:', id );
+			return;
+		}
 
+		console.log( 'Anchors: preventing default and calling scrollToId' );
 		e.preventDefault();
 		e.stopPropagation();
 		e.stopImmediatePropagation();
