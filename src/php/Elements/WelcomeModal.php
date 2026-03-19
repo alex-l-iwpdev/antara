@@ -141,8 +141,6 @@ class WelcomeModal extends Element {
 	public function render() {
 		$settings = $this->settings;
 
-		var_dump("dsdsds");
-
 		$title          = ! empty( $settings['title'] ) ? $this->render_dynamic_data( $settings['title'] ) : '';
 		$location_title = ! empty( $settings['locationTitle'] ) ? $this->render_dynamic_data( $settings['locationTitle'] ) : '';
 		$language_title = ! empty( $settings['languageTitle'] ) ? $this->render_dynamic_data( $settings['languageTitle'] ) : '';
@@ -170,7 +168,7 @@ class WelcomeModal extends Element {
 			$id    = ! empty( $location['id'] ) ? esc_attr( $location['id'] ) : 'loc-' . $index;
 
 			echo '<div class="radio-button">';
-			echo '<input type="radio" value="' . $id . '" name="location" id="' . $id . '">';
+			echo '<input type="radio" value="' . $id . '" name="location" id="' . $id . '" required>';
 			echo '<label for="' . $id . '">' . esc_html( $label ) . '</label>';
 			echo '</div>';
 		}
@@ -184,7 +182,7 @@ class WelcomeModal extends Element {
 			$id    = ! empty( $language['id'] ) ? esc_attr( $language['id'] ) : 'lang-' . $index;
 
 			echo '<div class="radio-button">';
-			echo '<input type="radio" value="' . $id . '" name="language" id="' . $id . '">';
+			echo '<input type="radio" value="' . $id . '" name="language" id="' . $id . '" required>';
 			echo '<label for="' . $id . '">' . esc_html( $label ) . '</label>';
 			echo '</div>';
 		}

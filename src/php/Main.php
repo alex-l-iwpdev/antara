@@ -19,7 +19,7 @@ class Main {
 	/**
 	 * Theme version.
 	 */
-	const THEME_VERSION = '1.0.20';
+	const THEME_VERSION = '1.1.0';
 
 	/**
 	 * Internal flag to avoid infinite loops while syncing WPML statuses.
@@ -74,7 +74,10 @@ class Main {
 		// Do the same for Polylang translations.
 		add_action( 'transition_post_status', [ $this, 'sync_pll_translations_to_draft' ], 10, 3 );
 
-		add_action( 'admin_post_welcome_modal', [ $this, 'welcome_modal_handler' ] );
+		add_action( 'admin_post_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
+		add_action( 'admin_post_nopriv_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
+		add_action( 'wp_ajax_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
+		add_action( 'wp_ajax_nopriv_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
 		add_action( 'wp_ajax_get_location', [ $this, 'get_location' ] );
 		add_action( 'wp_ajax_nopriv_get_location', [ $this, 'get_location' ] );
 
@@ -475,12 +478,12 @@ class Main {
 	}
 
 	/**
-	 * Если английская версия страницы/записи переводится в черновик —
-	 * перевести в черновик все её переводы (Polylang).
+	 * If the English version of the page/post is translated into a draft —
+	 * to draft all its translations (Polylang).
 	 *
-	 * @param string  $new_status Новый статус.
-	 * @param string  $old_status Старый статус.
-	 * @param WP_Post $post       Объект записи.
+	 * @param string  $new_status New status.
+	 * @param string  $old_status Old status.
+	 * @param WP_Post $post       Record Object.
 	 *
 	 * @return void
 	 */
@@ -544,7 +547,14 @@ class Main {
 		$this->pll_sync_in_progress = false;
 	}
 
+	/**
+	 * Welcome modal handler.
+	 *
+	 * @return void
+	 */
 	public static function welcome_modal_handler(): void {
+
+		// Verify nonce
 		if ( ! isset( $_POST['welcome_nonce'] ) || ! wp_verify_nonce( $_POST['welcome_nonce'], 'welcome_modal' ) ) {
 			wp_die( 'Security check failed' );
 		}
@@ -560,6 +570,21 @@ class Main {
 		setcookie( 'welcome-modal', 'true', $expire, COOKIEPATH, COOKIE_DOMAIN );
 		setcookie( 'pll_language', $pll_lang, $expire, COOKIEPATH, COOKIE_DOMAIN );
 		setcookie( 'location', $location, $expire, COOKIEPATH, COOKIE_DOMAIN );
+
+		// Also set location_name if we can find it
+		$locations = [
+			'es' => 'Barcelona, Spain',
+			'be' => 'Keerbergen, Belgium',
+		];
+		if ( isset( $locations[ $location ] ) ) {
+			setcookie( 'location_name', $locations[ $location ], $expire, COOKIEPATH, COOKIE_DOMAIN );
+		}
+
+		// Prevent caching
+		nocache_headers();
+		header( 'Cache-Control: no-cache, must-revalidate, max-age=0' );
+		header( 'Expires: Wed, 11 Jan 1984 05:00:00 GMT' );
+		header( 'Pragma: no-cache' );
 
 		// Redirect to home page of the selected language
 		$redirect_url = home_url( '/' );
@@ -579,10 +604,22 @@ class Main {
 			}
 		}
 
-		wp_safe_redirect( $redirect_url );
-		exit;
+		// If AJAX, return JSON
+		if ( wp_doing_ajax() ) {
+			wp_send_json_success( [ 'redirect_url' => $redirect_url ] );
+		}
+
+		wp_safe_redirect( $redirect_url, 302 );
+		echo '<script type="text/javascript">window.location.href="' . esc_url( $redirect_url ) . '";</script>';
+		echo '<noscript><meta http-equiv="refresh" content="0;url=' . esc_url( $redirect_url ) . '"></noscript>';
+		die();
 	}
 
+	/**
+	 * Get location Ajax.
+	 *
+	 * @return void
+	 */
 	public function get_location(): void {
 
 		if ( ! empty( $_COOKIE['location'] ) ) {

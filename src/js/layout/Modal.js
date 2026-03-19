@@ -126,6 +126,35 @@ const Modal = ( $ ) => {
 				date.setTime( date.getTime() + ( 7 * 24 * 60 * 60 * 1000 ) ); // 7 days
 				document.cookie = `location_name=${location}; expires=${date.toUTCString()}; path=/`;
 			} );
+
+			welcomeModal.find( '.location-language-form' ).submit( function( e ) {
+				e.preventDefault();
+
+				const $form = $( this );
+				const $submitBtn = $form.find( 'button[type="submit"]' );
+				const data = $form.serialize();
+
+				$submitBtn.prop( 'disabled', true ).css( 'opacity', '0.5' );
+
+				$.ajax( {
+					type: 'POST',
+					url: appData.ajaxUrl,
+					data: data,
+					success: function( res ) {
+						if ( res.success && res.data.redirect_url ) {
+							window.location.href = res.data.redirect_url;
+						} else {
+							// Fallback if something went wrong
+							$form.off( 'submit' ).submit();
+						}
+					},
+					error: function( xhr ) {
+						console.log( 'error...', xhr );
+						// Fallback to standard form submission on error
+						$form.off( 'submit' ).submit();
+					}
+				} );
+			} );
 		}
 
 		welcomeModal.find( '.icon-close' ).click( function( e ) {
