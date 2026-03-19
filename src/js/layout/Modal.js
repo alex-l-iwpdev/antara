@@ -11,6 +11,12 @@ const Modal = ( $ ) => {
 	const soundSection = document.getElementById( 'sound' );
 	const mindSection = document.getElementById( 'mind' );
 
+	const getCookie = ( name ) => {
+		const value = `; ${document.cookie}`;
+		const parts = value.split( `; ${name}=` );
+		if ( parts.length === 2 ) return parts.pop().split( ';' ).shift();
+	};
+
 	// Flags
 	let modalFormOneShown = false;
 	let modalTopShown = false;
@@ -89,6 +95,63 @@ const Modal = ( $ ) => {
 		if ( topShowTimer ) clearTimeout( topShowTimer );
 		if ( topHideTimer ) clearTimeout( topHideTimer );
 	}, { once: true } );
+
+	const locationText = getCookie( 'location_name' );
+	if ( locationText ) {
+		$( '.location-wrapper .brx-submenu-toggle span' ).text( locationText );
+	}
+
+	$( '.location-wrapper .menu-item a' ).click( function( e ) {
+		e.preventDefault();
+
+		const location = $( this ).attr( 'location' );
+
+		const date = new Date();
+		date.setTime( date.getTime() + ( 7 * 24 * 60 * 60 * 1000 ) ); // 7 days
+		document.cookie = `location=${location}; expires=${date.toUTCString()}; path=/`;
+
+		document.location.reload();
+	} );
+
+	const welcomeModal = $( 'body:not(.home) footer .brxe-welcome-modal' );
+	if ( welcomeModal.length ) {
+		const modalFlag = getCookie( 'welcome-modal' );
+		const location = getCookie( 'location' );
+		if ( ! modalFlag || ! location ) {
+			welcomeModal.addClass( 'open' );
+			welcomeModal.find( '[name="location"]' ).change( function( e ) {
+
+				let location = $( this ).parent().find( 'label' ).text();
+				const date = new Date();
+				date.setTime( date.getTime() + ( 7 * 24 * 60 * 60 * 1000 ) ); // 7 days
+				document.cookie = `location_name=${location}; expires=${date.toUTCString()}; path=/`;
+			} );
+		}
+
+		welcomeModal.find( '.icon-close' ).click( function( e ) {
+			e.preventDefault();
+			welcomeModal.removeClass( 'open' );
+
+			const data = {
+				action: 'get_location',
+			};
+
+			$.ajax( {
+				type: 'POST',
+				url: appData.ajaxUrl,
+				data: data,
+				success: function( res ) {
+					if ( res.success ) {
+						$( '.location-wrapper .brx-submenu-toggle span' ).text( res.data.location );
+					}
+				},
+				error: function( xhr ) {
+					console.log( 'error...', xhr );
+					//error logging
+				}
+			} );
+		} );
+	}
 };
 
 export default Modal;

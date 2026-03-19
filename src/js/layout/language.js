@@ -76,9 +76,6 @@ const Language = ( $ ) => {
 
 		let isOpen = false;
 
-		console.log('cookie lang: ', lang);
-		console.log('text: ', text);
-
 		// Устанавливаем начальное значение текста
 		text.textContent = translations.open;
 

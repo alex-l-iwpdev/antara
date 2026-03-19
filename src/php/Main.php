@@ -8,6 +8,7 @@
 namespace Iwpdev\Antara;
 
 use Bricks\Elements;
+use Iwpdev\Antara\Api\GeoIpApi;
 use Iwpdev\Antara\Modules\GeoContent;
 use WP_Post;
 
@@ -72,6 +73,11 @@ class Main {
 		add_action( 'transition_post_status', [ $this, 'sync_wpml_translations_to_draft' ], 10, 3 );
 		// Do the same for Polylang translations.
 		add_action( 'transition_post_status', [ $this, 'sync_pll_translations_to_draft' ], 10, 3 );
+
+		add_action( 'admin_post_welcome_modal', [ $this, 'welcome_modal_handler' ] );
+		add_action( 'wp_ajax_get_location', [ $this, 'get_location' ] );
+		add_action( 'wp_ajax_nopriv_get_location', [ $this, 'get_location' ] );
+
 	}
 
 	/**
@@ -167,6 +173,7 @@ class Main {
 
 		$custom_elements = [
 				__DIR__ . '/Elements/FooterContacts.php',
+				__DIR__ . '/Elements/WelcomeModal.php',
 		];
 
 		foreach ( $custom_elements as $file ) {
@@ -214,9 +221,9 @@ class Main {
 				'bricks-child-app',
 				'appData',
 				[
-						'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-						'actionGeo'  => GeoContent::GEO_CONTENT_ACTION_AND_NONCE,
-						'nonceGeo'   => wp_create_nonce( GeoContent::GEO_CONTENT_ACTION_AND_NONCE ),
+						'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
+						'actionGeo' => GeoContent::GEO_CONTENT_ACTION_AND_NONCE,
+						'nonceGeo'  => wp_create_nonce( GeoContent::GEO_CONTENT_ACTION_AND_NONCE ),
 				]
 		);
 
@@ -536,5 +543,69 @@ class Main {
 		}
 		$this->pll_sync_in_progress = false;
 	}
+
+	public static function welcome_modal_handler(): void {
+		if ( ! isset( $_POST['welcome_nonce'] ) || ! wp_verify_nonce( $_POST['welcome_nonce'], 'welcome_modal' ) ) {
+			wp_die( 'Security check failed' );
+		}
+
+		$location = isset( $_POST['location'] ) ? sanitize_text_field( $_POST['location'] ) : '';
+		$language = isset( $_POST['language'] ) ? sanitize_text_field( $_POST['language'] ) : '';
+
+		// Map lag_ prefixes to actual Polylang language codes if necessary
+		$pll_lang = str_replace( 'lag_', '', $language );
+
+		// Set cookies (expire in 1 week)
+		$expire = time() + ( 7 * 24 * 60 * 60 );
+		setcookie( 'welcome-modal', 'true', $expire, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( 'pll_language', $pll_lang, $expire, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( 'location', $location, $expire, COOKIEPATH, COOKIE_DOMAIN );
+
+		// Redirect to home page of the selected language
+		$redirect_url = home_url( '/' );
+		if ( function_exists( 'pll_home_url' ) ) {
+			$redirect_url = pll_home_url( $pll_lang );
+		}
+
+		// Try to redirect to the translated version of the current page
+		$referer = wp_get_referer();
+		if ( $referer ) {
+			$post_id = url_to_postid( $referer );
+			if ( $post_id && function_exists( 'pll_get_post' ) ) {
+				$translated_post_id = pll_get_post( $post_id, $pll_lang );
+				if ( $translated_post_id ) {
+					$redirect_url = get_permalink( $translated_post_id );
+				}
+			}
+		}
+
+		wp_safe_redirect( $redirect_url );
+		exit;
+	}
+
+	public function get_location(): void {
+
+		if ( ! empty( $_COOKIE['location'] ) ) {
+			$country = $_COOKIE['location'];
+		} else {
+
+			$geo_api = new GeoIpApi();
+			$ip      = $_SERVER['REMOTE_ADDR'] ?? $_SERVER['HTTP_X_REAL_IP'];
+			if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+				$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+			}
+			$country = $geo_api->get_geo_info( $ip );
+		}
+
+
+		switch ( $country ) {
+			case 'es':
+				wp_send_json_success( [ 'location' => __( 'Barcelona, Spain', '' ) ] );
+				break;
+			default:
+				wp_send_json_success( [ 'location' => __( 'Keerbergen, Belgium', '' ) ] );
+		}
+	}
+
 
 }

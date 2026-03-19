@@ -14,6 +14,14 @@ class GeoIpApi {
 	const GEO_IP_API_KEY = 'fb8aa1f6c1c3f1';
 
 	public function get_geo_info( $ip ) {
+
+		$cookie_location = ! empty( $_COOKIE['location'] ) ? filter_var( wp_unslash( $_COOKIE['location'] ), FILTER_SANITIZE_FULL_SPECIAL_CHARS ) : '';
+
+		if ( ! empty( $cookie_location ) ) {
+			return $cookie_location;
+		}
+
+
 		$transient_key = 'geo_ip_' . md5( $ip );
 		$cached_info   = get_transient( $transient_key );
 
