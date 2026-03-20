@@ -168,7 +168,7 @@ class WelcomeModal extends Element {
 			$id    = ! empty( $location['id'] ) ? esc_attr( $location['id'] ) : 'loc-' . $index;
 
 			echo '<div class="radio-button">';
-			echo '<input type="radio" value="' . $id . '" name="location" id="' . $id . '" required>';
+			echo '<input type="radio" value="' . $id . '" name="location" id="' . $id . '">';
 			echo '<label for="' . $id . '">' . esc_html( $label ) . '</label>';
 			echo '</div>';
 		}
@@ -182,7 +182,7 @@ class WelcomeModal extends Element {
 			$id    = ! empty( $language['id'] ) ? esc_attr( $language['id'] ) : 'lang-' . $index;
 
 			echo '<div class="radio-button">';
-			echo '<input type="radio" value="' . $id . '" name="language" id="' . $id . '" required>';
+			echo '<input type="radio" value="' . $id . '" name="language" id="' . $id . '">';
 			echo '<label for="' . $id . '">' . esc_html( $label ) . '</label>';
 			echo '</div>';
 		}

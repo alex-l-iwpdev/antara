@@ -14,7 +14,14 @@ const Modal = ( $ ) => {
 	const getCookie = ( name ) => {
 		const value = `; ${document.cookie}`;
 		const parts = value.split( `; ${name}=` );
-		if ( parts.length === 2 ) return parts.pop().split( ';' ).shift();
+		if ( parts.length === 2 ) {
+			const cookieValue = parts.pop().split( ';' ).shift();
+			try {
+				return decodeURIComponent( cookieValue );
+			} catch ( e ) {
+				return cookieValue;
+			}
+		}
 	};
 
 	// Flags
@@ -119,18 +126,48 @@ const Modal = ( $ ) => {
 		const location = getCookie( 'location' );
 		if ( ! modalFlag || ! location ) {
 			welcomeModal.addClass( 'open' );
-			welcomeModal.find( '[name="location"]' ).change( function( e ) {
+			welcomeModal.find( '[name="location"], [name="language"]' ).change( function( e ) {
+				const $form = $( this ).closest( 'form' );
+				const $locationInputs = $form.find( 'input[name="location"]' );
+				const $languageInputs = $form.find( 'input[name="language"]' );
 
-				let location = $( this ).parent().find( 'label' ).text();
-				const date = new Date();
-				date.setTime( date.getTime() + ( 7 * 24 * 60 * 60 * 1000 ) ); // 7 days
-				document.cookie = `location_name=${location}; expires=${date.toUTCString()}; path=/`;
+				if ( $( this ).attr( 'name' ) === 'location' ) {
+					let location = $( this ).parent().find( 'label' ).text();
+					const date = new Date();
+					date.setTime( date.getTime() + ( 7 * 24 * 60 * 60 * 1000 ) ); // 7 days
+					document.cookie = `location_name=${encodeURIComponent( location )}; expires=${date.toUTCString()}; path=/`;
+				}
+
+				if ( $locationInputs.is( ':checked' ) && $languageInputs.is( ':checked' ) ) {
+					$form.submit();
+				}
 			} );
 
 			welcomeModal.find( '.location-language-form' ).submit( function( e ) {
 				e.preventDefault();
 
 				const $form = $( this );
+				const $locationInputs = $form.find( 'input[name="location"]' );
+				const $languageInputs = $form.find( 'input[name="language"]' );
+
+				$form.find( '.radio-button' ).removeClass( 'error' );
+
+				let hasError = false;
+
+				if ( ! $locationInputs.is( ':checked' ) ) {
+					$locationInputs.first().closest( '.radio-button' ).addClass( 'error' );
+					hasError = true;
+				}
+
+				if ( ! $languageInputs.is( ':checked' ) ) {
+					$languageInputs.first().closest( '.radio-button' ).addClass( 'error' );
+					hasError = true;
+				}
+
+				if ( hasError ) {
+					return false;
+				}
+
 				const $submitBtn = $form.find( 'button[type="submit"]' );
 				const data = $form.serialize();
 
