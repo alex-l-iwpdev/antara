@@ -112,10 +112,12 @@ const Modal = ( $ ) => {
 		e.preventDefault();
 
 		const location = $( this ).attr( 'location' );
+		const locationName = $( this ).find( 'span' ).length ? $( this ).find( 'span' ).text() : $( this ).text();
 
 		const date = new Date();
 		date.setTime( date.getTime() + ( 7 * 24 * 60 * 60 * 1000 ) ); // 7 days
 		document.cookie = `location=${location}; expires=${date.toUTCString()}; path=/`;
+		document.cookie = `location_name=${encodeURIComponent( locationName )}; expires=${date.toUTCString()}; path=/`;
 
 		document.location.reload();
 	} );
