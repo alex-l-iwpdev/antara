@@ -129,17 +129,23 @@ const Scroll = ( $ ) => {
 			let momentum = 0;
 			let currentVelocity = 1.0;
 			const baseSpeedPx = 1.0;
-			const speedFactor = 0.1;
+			const speedFactor = 0.05; // Было 0.1, уменьшаем в 2 раза
+			const maxMomentum = 5.0;  // Максимальный добавочный импульс (примерно в 5 раз быстрее базы)
 
 			const onScroll = () => {
 				const st = window.scrollY;
 				let delta = st - lastScrollTop;
 				lastScrollTop = st;
 
-				const maxDelta = 100;
+				const maxDelta = 80; // Снижаем максимальную дельту
 				if ( Math.abs( delta ) > maxDelta ) delta = maxDelta * Math.sign( delta );
 
 				momentum += delta * speedFactor;
+
+				// Ограничиваем импульс, чтобы карусель не улетала
+				if ( Math.abs( momentum ) > maxMomentum ) {
+					momentum = maxMomentum * Math.sign( momentum );
+				}
 			};
 			window.addEventListener( 'scroll', onScroll, { passive: true } );
 
@@ -170,7 +176,7 @@ const Scroll = ( $ ) => {
 
 				// Плавная интерполяция скорости
 				const targetVelocity = baseSpeedPx + momentum;
-				currentVelocity += ( targetVelocity - currentVelocity ) * 0.1 * dt;
+				currentVelocity += ( targetVelocity - currentVelocity ) * 0.08 * dt; // Снижено с 0.1 до 0.08 для большей инерции и плавности
 
 				// Обновляем позицию (двигаемся влево, поэтому вычитаем)
 				pos += currentVelocity * dt;
@@ -186,7 +192,7 @@ const Scroll = ( $ ) => {
 				xSetter( -unit - pos );
 
 				// Декей импульса
-				momentum *= Math.pow( 0.9, dt );
+				momentum *= Math.pow( 0.85, dt ); // Более интенсивное затухание (было 0.9)
 			};
 
 			gsap.ticker.add( update );

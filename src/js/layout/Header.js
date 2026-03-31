@@ -41,9 +41,20 @@ const Header = ( $ ) => {
 	if ( ! header ) return; // Check if there is a header on the page
 	let lastScrollY = window.scrollY; // Previous scroll position
 	const scrollThreshold = window.innerHeight * 0.03; // 3% of browser window height
+	const banner = document.querySelector( '.banner' );
 
 	const onScroll = () => {
 		const currentScrollY = window.scrollY;
+
+		if ( banner ) {
+			const bannerBottom = banner.getBoundingClientRect().bottom;
+			if ( bannerBottom <= header.offsetHeight ) {
+				header.classList.add( 'dark' );
+			} else {
+				header.classList.remove( 'dark' );
+			}
+		}
+
 		if ( currentScrollY < scrollThreshold ) {
 			header.classList.remove( 'header-hidden' );
 			lastScrollY = currentScrollY;

@@ -14,7 +14,6 @@ try {
 	gsap.registerPlugin( ScrollTrigger, Flip, ScrollToPlugin );
 }
 
-import Swiper from 'swiper';
 
 import BackgroundBlur from './layout/BackgroundBlur.js';
 import Header from './layout/Header.js';

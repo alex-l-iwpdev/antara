@@ -23,7 +23,27 @@ const Modal = ( $ ) => {
 			}
 		}
 	};
-
+	
+	$('.read-more').click(function(e) {
+		e.preventDefault();
+		if($(this).find('.fas').hasClass('fa-plus')){
+			$(this).find('.fas').removeClass('fa-plus').addClass('fa-minus');
+			$(this).parent().parent().find('.hidden-text').slideDown();
+		}else{
+			$(this).find('.fas').removeClass('fa-minus').addClass('fa-plus');
+			$(this).parent().parent().find('.hidden-text').slideUp();
+		} 
+	});
+	$('.read-more-next').click(function(e) {
+		e.preventDefault();
+		if($(this).find('.fas').hasClass('fa-plus')){
+			$(this).find('.fas').removeClass('fa-plus').addClass('fa-minus');
+			$(this).next().slideDown();
+		}else{
+			$(this).find('.fas').removeClass('fa-minus').addClass('fa-plus');
+			$(this).next().slideUp();
+		}
+	});
 	// Flags
 	let modalFormOneShown = false;
 	let modalTopShown = false;
