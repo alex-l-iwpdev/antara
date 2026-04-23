@@ -31,6 +31,24 @@ const GeoContent = ( $ ) => {
 			}
 		} );
 	}
+
+	const geoContentMobile = $( '.open-popup' );
+	if(geoContentMobile.length){
+		geoContentMobile.on('click', function(e){
+			e.preventDefault();
+
+			geoContentMobile.parent().find('.popup-cal').show();
+		})
+	}
+
+	const closePopup = $( '.close-popup' );
+	if(closePopup.length){
+		closePopup.on('click', function(e){
+			e.preventDefault();
+
+			geoContentMobile.parent().parent().find('.popup-cal').hide();
+		})
+	}
 };
 
 export default GeoContent;

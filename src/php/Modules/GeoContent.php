@@ -121,13 +121,15 @@ class GeoContent {
 				foreach ( $content as $item ) {
 
 					$item_country = $item['country'];
+					$item_content = ( ! empty( $item['code'] ) && ! empty( $item['code_content'] ) ) ? $item['code_content'] : $item['content'];
+
 					if ( $item_country === $country ) {
-						$matched_content = $item['content'];
+						$matched_content = $item_content;
 						break;
 					}
 
 					if ( $item_country === 'default' ) {
-						$default_content = $item['content'];
+						$default_content = $item_content;
 					}
 
 				}
