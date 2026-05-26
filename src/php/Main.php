@@ -11,6 +11,7 @@ use Bricks\Elements;
 use Iwpdev\Antara\Api\GeoIpApi;
 use Iwpdev\Antara\Modules\GeoContent;
 use WP_Post;
+use WP_HTML_Processor;
 
 /**
  * Main theme class.
@@ -80,7 +81,58 @@ class Main {
 		add_action( 'wp_ajax_nopriv_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
 		add_action( 'wp_ajax_get_location', [ $this, 'get_location' ] );
 		add_action( 'wp_ajax_nopriv_get_location', [ $this, 'get_location' ] );
-
+		add_filter( 'gform_next_button', [ $this, 'input_to_button' ], 10, 2 );
+		add_filter( 'gform_previous_button', [ $this, 'input_to_button' ], 10, 2 );
+		add_filter( 'gform_submit_button', [ $this, 'gf_add_custom_css_classes'], 10, 2 );
+		add_filter( 'gform_submit_button', [ $this, 'input_to_button' ], 10, 2 );
+	}
+	
+	/**
+	 * Update submit buttons to be HTML button elements.
+	 *
+	 * @param string $button Button markup
+	 *
+	 * @return string the modified markup
+	 */
+	public function input_to_button( $button, $form ) {
+			$fragment = WP_HTML_Processor::create_fragment( $button );
+			$fragment->next_token();
+	 
+			$attributes      = array( 'id', 'type', 'class', 'onclick' );
+			$data_attributes = $fragment->get_attribute_names_with_prefix( 'data-' );
+			if ( ! empty( $data_attributes ) ) {
+					$attributes = array_merge( $attributes, $data_attributes );
+			}
+	 
+			$new_attributes = array();
+			foreach ( $attributes as $attribute ) {
+					$value = $fragment->get_attribute( $attribute );
+					if ( ! empty( $value ) ) {
+							$new_attributes[] = sprintf( '%s="%s"', $attribute, esc_attr( $value ) );
+					}
+			}
+	 
+			return sprintf( '<div class="submit-button-wrapper"><button %s><span>%s</span></button></div>', implode( ' ', $new_attributes ), esc_html( $fragment->get_attribute( 'value' ) ) );
+	}
+	
+	/**
+	 * Add custom CSS classes to the Gravity Forms submit button
+	 *
+	 * @param string $button Button markup
+	 *
+	 * @return string the updated HTML;
+	 */
+	public function gf_add_custom_css_classes( $button ) {
+			$fragment = WP_HTML_Processor::create_fragment( $button );
+			$fragment->next_token();
+			
+			$classes = [ 'bricks-button', 'bricks-background-primary', 'icon-left' ];
+			
+			foreach ( $classes as $class ) {					
+				$fragment->add_class( $class );
+			}
+	 
+			return $fragment->get_updated_html();
 	}
 
 	/**
