@@ -112,7 +112,7 @@ class Main {
 					}
 			}
 	 
-			return sprintf( '<div class="submit-button-wrapper"><button %s><span>%s</span></button></div>', implode( ' ', $new_attributes ), esc_html( $fragment->get_attribute( 'value' ) ) );
+			return sprintf( '<div class="submit-button-wrapper"><button %s><i class="ti-email"></i><span>%s</span></button></div>', implode( ' ', $new_attributes ), esc_html( $fragment->get_attribute( 'value' ) ) );
 	}
 	
 	/**
