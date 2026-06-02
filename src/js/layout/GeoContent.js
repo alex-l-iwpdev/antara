@@ -22,7 +22,10 @@ const GeoContent = ( $ ) => {
 				success: function( res ) {
 					if ( res.success && res.data ) {
 						res.data.forEach( function( item ) {
-							$( '.geo-content-shortcode[data-id="' + item.id + '"]' ).html( item.content );
+							const targets = document.querySelectorAll( '.geo-content-shortcode[data-id="' + item.id + '"]' );
+							targets.forEach( el => {
+								el.innerHTML = item.content;
+							} );
 						} );
 					}
 				},
@@ -34,9 +37,12 @@ const GeoContent = ( $ ) => {
 		}
 	};
 
-	// Откладываем тяжелый AJAX запрос, чтобы не блокировать загрузку страницы
 	if ( window.innerWidth <= 768 ) {
-		setTimeout( initGeo, 2000 );
+		if ( window.requestIdleCallback ) {
+			window.requestIdleCallback( () => setTimeout( initGeo, 1000 ) );
+		} else {
+			setTimeout( initGeo, 2000 );
+		}
 	} else {
 		initGeo();
 	}

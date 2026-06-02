@@ -33,6 +33,7 @@ import Video from './layout/Video.js';
 ( ( $ ) => {
 	$( () => {
 		const isMobile = ( typeof window !== 'undefined' && window.innerWidth <= 768 );
+		const criticalModules = [ 'Header', 'BackgroundBlur', 'Scroll' ];
 		const modules = [
 			{ name: 'BackgroundBlur', fn: BackgroundBlur },
 			{ name: 'Header', fn: Header },
@@ -50,39 +51,46 @@ import Video from './layout/Video.js';
 			{ name: 'Video', fn: Video },
 		];
 
+		const initModule = ( m ) => {
+			try {
+				if ( typeof m.fn === 'function' ) {
+					m.fn( $ );
+				}
+			} catch ( e ) {
+				console.error( `Ошибка инициализации модуля ${ m.name }:`, e );
+			}
+		};
+
 		if ( isMobile ) {
-			// На мобильных инициализируем модули по одному, чтобы не блокировать поток
+			// 1. Инициализируем критические модули сразу
+			modules.filter( m => criticalModules.includes( m.name ) ).forEach( initModule );
+
+			// 2. Остальные модули инициализируем в фоне
+			const secondaryModules = modules.filter( m => ! criticalModules.includes( m.name ) );
 			let index = 0;
-			const initNext = () => {
-				if ( index < modules.length ) {
-					try {
-						if ( typeof modules[ index ].fn === 'function' ) {
-							modules[ index ].fn( $ );
-						}
-					} catch ( e ) {
-						console.error( `Ошибка инициализации модуля ${ modules[ index ].name }:`, e );
-					}
+
+			const initNext = ( deadline ) => {
+				while ( ( deadline.timeRemaining() > 0 || deadline.didTimeout ) && index < secondaryModules.length ) {
+					initModule( secondaryModules[ index ] );
 					index++;
-					// Используем requestIdleCallback если доступен, иначе setTimeout
-					if ( window.requestIdleCallback ) {
-						window.requestIdleCallback( initNext );
-					} else {
-						setTimeout( initNext, 10 );
-					}
+				}
+
+				if ( index < secondaryModules.length ) {
+					window.requestIdleCallback( initNext );
 				}
 			};
-			initNext();
+
+			if ( window.requestIdleCallback ) {
+				window.requestIdleCallback( initNext );
+			} else {
+				// Fallback для браузеров без requestIdleCallback
+				const initAll = () => {
+					secondaryModules.forEach( m => initModule( m ) );
+				};
+				setTimeout( initAll, 200 );
+			}
 		} else {
-			// На десктопе инициализируем все сразу
-			modules.forEach( m => {
-				try {
-					if ( typeof m.fn === 'function' ) {
-						m.fn( $ );
-					}
-				} catch ( e ) {
-					console.error( `Ошибка инициализации модуля ${ m.name }:`, e );
-				}
-			} );
+			modules.forEach( initModule );
 		}
 	} );
 } )( jQuery );

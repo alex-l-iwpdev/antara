@@ -21,7 +21,7 @@ const SwiperSliders = ( $ ) => {
 			}
 		};
 
-		if ( window.innerWidth <= 768 && 'IntersectionObserver' in window ) {
+		if ( 'IntersectionObserver' in window ) {
 			const io = new IntersectionObserver( ( entries ) => {
 				entries.forEach( entry => {
 					if ( entry.isIntersecting ) {
