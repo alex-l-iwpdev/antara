@@ -23,7 +23,7 @@ const Modal = ( $ ) => {
 			}
 		}
 	};
-	
+
 	$('.read-more').click(function(e) {
 		e.preventDefault();
 		if($(this).find('.fas').hasClass('fa-plus')){
@@ -32,7 +32,7 @@ const Modal = ( $ ) => {
 		}else{
 			$(this).find('.fas').removeClass('fa-minus').addClass('fa-plus');
 			$(this).parent().parent().find('.hidden-text').slideUp();
-		} 
+		}
 	});
 	$('.read-more-next').click(function(e) {
 		e.preventDefault();
@@ -142,7 +142,7 @@ const Modal = ( $ ) => {
 		document.location.reload();
 	} );
 
-	const welcomeModal = $( 'body:not(.home) footer .brxe-welcome-modal' );
+	const welcomeModal = $( '.page-id-1068 footer .brxe-welcome-modal' );
 	if ( welcomeModal.length ) {
 		const modalFlag = getCookie( 'welcome-modal' );
 		const location = getCookie( 'location' );

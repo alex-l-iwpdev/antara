@@ -20,7 +20,7 @@ class Main {
 	/**
 	 * Theme version.
 	 */
-	const THEME_VERSION = '1.2.0';
+	const THEME_VERSION = '1.2.1';
 
 	/**
 	 * Internal flag to avoid infinite loops while syncing WPML statuses.
@@ -86,7 +86,7 @@ class Main {
 		add_filter( 'gform_submit_button', [ $this, 'gf_add_custom_css_classes'], 10, 2 );
 		add_filter( 'gform_submit_button', [ $this, 'input_to_button' ], 10, 2 );
 	}
-	
+
 	/**
 	 * Update submit buttons to be HTML button elements.
 	 *
@@ -97,13 +97,13 @@ class Main {
 	public function input_to_button( $button, $form ) {
 			$fragment = WP_HTML_Processor::create_fragment( $button );
 			$fragment->next_token();
-	 
+
 			$attributes      = array( 'id', 'type', 'class', 'onclick' );
 			$data_attributes = $fragment->get_attribute_names_with_prefix( 'data-' );
 			if ( ! empty( $data_attributes ) ) {
 					$attributes = array_merge( $attributes, $data_attributes );
 			}
-	 
+
 			$new_attributes = array();
 			foreach ( $attributes as $attribute ) {
 					$value = $fragment->get_attribute( $attribute );
@@ -111,10 +111,10 @@ class Main {
 							$new_attributes[] = sprintf( '%s="%s"', $attribute, esc_attr( $value ) );
 					}
 			}
-	 
+
 			return sprintf( '<div class="submit-button-wrapper"><button %s><i class="ti-email"></i><span>%s</span></button></div>', implode( ' ', $new_attributes ), esc_html( $fragment->get_attribute( 'value' ) ) );
 	}
-	
+
 	/**
 	 * Add custom CSS classes to the Gravity Forms submit button
 	 *
@@ -125,13 +125,13 @@ class Main {
 	public function gf_add_custom_css_classes( $button ) {
 			$fragment = WP_HTML_Processor::create_fragment( $button );
 			$fragment->next_token();
-			
+
 			$classes = [ 'bricks-button', 'bricks-background-primary', 'icon-left' ];
-			
-			foreach ( $classes as $class ) {					
+
+			foreach ( $classes as $class ) {
 				$fragment->add_class( $class );
 			}
-	 
+
 			return $fragment->get_updated_html();
 	}
 
