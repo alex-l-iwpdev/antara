@@ -1,6 +1,12 @@
 import gsap from 'gsap';
 
 const Scroll = ( $ ) => {
+	// Простая проверка на мобильное устройство: отключаем тяжелую карусель
+	const isMobile = ( typeof window !== 'undefined' && window.innerWidth <= 768 ) || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test( navigator.userAgent );
+	if ( isMobile ) {
+		console.log('[Scroll] Отключено на мобильных устройствах для оптимизации');
+		return;
+	}
 	const mod = ( n, m ) => ( ( n % m ) + m ) % m;
 
 	const initScrollBasedScroller = () => {

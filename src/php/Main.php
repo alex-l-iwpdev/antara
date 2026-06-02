@@ -20,7 +20,7 @@ class Main {
 	/**
 	 * Theme version.
 	 */
-	const THEME_VERSION = '1.2.1';
+	const THEME_VERSION = '1.2.9';
 
 	/**
 	 * Internal flag to avoid infinite loops while syncing WPML statuses.
@@ -95,10 +95,10 @@ class Main {
 	 * @return string the modified markup
 	 */
 	public function input_to_button( $button, $form ) {
-			$fragment = WP_HTML_Processor::create_fragment( $button );
-			$fragment->next_token();
+		$fragment = WP_HTML_Processor::create_fragment( $button );
+		$fragment->next_token();
 
-			$attributes      = array( 'id', 'type', 'class', 'onclick' );
+		$attributes = array( 'id', 'type', 'class', 'onclick' );
 			$data_attributes = $fragment->get_attribute_names_with_prefix( 'data-' );
 			if ( ! empty( $data_attributes ) ) {
 					$attributes = array_merge( $attributes, $data_attributes );

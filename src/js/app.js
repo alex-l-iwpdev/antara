@@ -32,23 +32,57 @@ import Video from './layout/Video.js';
 
 ( ( $ ) => {
 	$( () => {
-		try {
-			BackgroundBlur( $ );
-			Header( $ );
-			Music( $ );
-			Forms( $ );
-			Scroll( $ );
-			Anchors( $ );
-			TabsMenu( $ );
-			HorizontalScroll( $ );
-			SwiperSliders( $ );
-			Tabs( $ );
-			Modal( $ );
-			Language($);
-			GeoContent($);
-			Video($);
-		} catch ( e ) {
-			console.error( 'Ошибка инициализации модулей:', e );
+		const isMobile = ( typeof window !== 'undefined' && window.innerWidth <= 768 );
+		const modules = [
+			{ name: 'BackgroundBlur', fn: BackgroundBlur },
+			{ name: 'Header', fn: Header },
+			{ name: 'Music', fn: Music },
+			{ name: 'Forms', fn: Forms },
+			{ name: 'Scroll', fn: Scroll },
+			{ name: 'Anchors', fn: Anchors },
+			{ name: 'TabsMenu', fn: TabsMenu },
+			{ name: 'HorizontalScroll', fn: HorizontalScroll },
+			{ name: 'SwiperSliders', fn: SwiperSliders },
+			{ name: 'Tabs', fn: Tabs },
+			{ name: 'Modal', fn: Modal },
+			{ name: 'Language', fn: Language },
+			{ name: 'GeoContent', fn: GeoContent },
+			{ name: 'Video', fn: Video },
+		];
+
+		if ( isMobile ) {
+			// На мобильных инициализируем модули по одному, чтобы не блокировать поток
+			let index = 0;
+			const initNext = () => {
+				if ( index < modules.length ) {
+					try {
+						if ( typeof modules[ index ].fn === 'function' ) {
+							modules[ index ].fn( $ );
+						}
+					} catch ( e ) {
+						console.error( `Ошибка инициализации модуля ${ modules[ index ].name }:`, e );
+					}
+					index++;
+					// Используем requestIdleCallback если доступен, иначе setTimeout
+					if ( window.requestIdleCallback ) {
+						window.requestIdleCallback( initNext );
+					} else {
+						setTimeout( initNext, 10 );
+					}
+				}
+			};
+			initNext();
+		} else {
+			// На десктопе инициализируем все сразу
+			modules.forEach( m => {
+				try {
+					if ( typeof m.fn === 'function' ) {
+						m.fn( $ );
+					}
+				} catch ( e ) {
+					console.error( `Ошибка инициализации модуля ${ m.name }:`, e );
+				}
+			} );
 		}
 	} );
 } )( jQuery );

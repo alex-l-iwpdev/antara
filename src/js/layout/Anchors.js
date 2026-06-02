@@ -62,11 +62,9 @@ const Anchors = ( $ ) => {
 	};
 
 	const scrollToId = ( id ) => {
-		console.log( 'Anchors: scrollToId called with id:', id );
 		if ( ! id ) return;
 		const target = document.getElementById( id );
 		if ( ! target ) {
-			console.warn( 'Anchors: target element not found for id:', id );
 			return;
 		}
 
@@ -79,25 +77,25 @@ const Anchors = ( $ ) => {
 		const rect = target.getBoundingClientRect();
 		const absoluteY = window.scrollY + rect.top - extraOffset;
 
-		console.log( 'Anchors: scrolling to absoluteY:', absoluteY, 'rect.top:', rect.top, 'offset:', extraOffset );
-
 		gsap.to( window, {
 			duration: 2.5,
 			ease: 'power4.inOut',
 			scrollTo: { y: absoluteY, autoKill: false },
 			onStart: () => console.log( 'Anchors: GSAP scroll started' ),
 			onComplete: () => {
-				console.log( 'Anchors: GSAP scroll completed' );
 				html.style.scrollBehavior = originalScrollBehavior;
 			},
 			onInterrupt: () => {
-				console.warn( 'Anchors: GSAP scroll interrupted' );
 				html.style.scrollBehavior = originalScrollBehavior;
 			},
 		} );
 	};
 
 	// IntersectionObserver для подсветки активного пункта
+	// Уменьшаем количество порогов на мобильных для производительности
+	const isMobile = window.innerWidth <= 768;
+	const thresholds = isMobile ? [ 0, 0.5, 1 ] : [ 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1 ];
+
 	const observer = new IntersectionObserver(
 		( entries ) => {
 			entries.forEach( ( entry ) => {
@@ -109,7 +107,7 @@ const Anchors = ( $ ) => {
 		},
 		{
 			rootMargin: '-15% 0px -45% 0px',
-			threshold: [ 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1 ],
+			threshold: thresholds,
 		},
 	);
 
@@ -127,16 +125,12 @@ const Anchors = ( $ ) => {
 	const handleClick = ( e ) => {
 		const link = e.currentTarget;
 		const href = link.getAttribute( 'href' ) || '';
-		console.log( 'Anchors: click detected on', link, 'href:', href );
 		if ( ! href.startsWith( '#' ) ) return;
 		const id = href.slice( 1 );
 		const target = document.getElementById( id );
 		if ( ! target ) {
-			console.warn( 'Anchors: target for anchor not found:', id );
 			return;
 		}
-
-		console.log( 'Anchors: preventing default and calling scrollToId' );
 		e.preventDefault();
 		e.stopPropagation();
 		e.stopImmediatePropagation();
