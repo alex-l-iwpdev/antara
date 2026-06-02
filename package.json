@@ -5,11 +5,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "MIX_FILE=webpack.mix.cjs mix",
-    "watch": "MIX_FILE=webpack.mix.cjs mix watch",
-    "prod": "MIX_FILE=webpack.mix.cjs mix --production",
-    "watch-prod": "MIX_FILE=webpack.mix.cjs mix --production -- --watch --progress",
-    "icons": "node ./generate-icons.cjs"
+    "dev": "MIX_FILE=webpack.mix.js mix",
+    "watch": "MIX_FILE=webpack.mix.js mix watch",
+    "prod": "MIX_FILE=webpack.mix.js mix --production",
+    "watch-prod": "MIX_FILE=webpack.mix.js mix --production -- --watch --progress",
+    "icons": "node ./generate-icons.js"
   },
   "repository": {
     "type": "git",
@@ -41,5 +41,8 @@
   "dependencies": {
     "gsap": "^3.14.2",
     "swiper": "^12.1.0"
+  },
+  "resolutions": {
+    "webpack": "5.105.4"
   }
 }
