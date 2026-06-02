@@ -42,7 +42,9 @@
     "gsap": "^3.14.2",
     "swiper": "^12.1.0"
   },
-  "resolutions": {
-    "webpack": "5.105.4"
+  "pnpm": {
+    "overrides": {
+      "webpack": "5.105.4"
+    }
   }
 }

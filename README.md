@@ -75,8 +75,10 @@ composer phpcs   # runs phpcs against phpcs.xml (WordPress coding standards)
 reading the following** — newer webpack releases break Laravel Mix 6.
 
 ```jsonc
-"resolutions": {
-  "webpack": "5.105.4"
+"pnpm": {
+  "overrides": {
+    "webpack": "5.105.4"
+  }
 }
 ```
 
@@ -148,16 +150,19 @@ bricks-child/
 
 ### JavaScript
 
-`src/js/app.js` is the single entry. It registers GSAP plugins (with a `try/catch` fallback
-for the premium `MorphSVGPlugin`, which is only present with a Club GreenSock install),
-pulls in Bootstrap and Swiper, and wires up the `src/js/layout/*` feature modules. `jQuery`
-is treated as a webpack external (provided by WordPress as the global `jQuery`).
+`src/js/app.js` is the single entry. It registers GSAP plugins, pulls in Bootstrap and
+Swiper, and wires up the `src/js/layout/*` feature modules. `jQuery` is treated as a
+webpack external (provided by WordPress as the global `jQuery`).
+
+The whole GSAP toolset — including `MorphSVGPlugin`, `SplitText`, `DrawSVGPlugin`, etc. —
+is **free and bundled in the public `gsap` package** since GSAP 3.13 (following the Webflow
+acquisition), so these plugins install from the standard npm registry with no Club
+GreenSock membership or private token. The `try/catch` around `MorphSVGPlugin` registration
+in `app.js` is therefore now redundant, but harmless.
 
 ### SCSS
 
-`src/scss/app.scss` imports everything under `layout/` and `components/`. Note the codebase
-uses modern CSS relative-color syntax (e.g. `rgb(from var(--x) r g b / .25)`) — keep it
-space-separated with `var()` around custom properties, or Dart Sass will reject it.
+`src/scss/app.scss` imports everything under `layout/` and `components/`.
 
 ### Icon fonts
 
