@@ -33,7 +33,7 @@ import Video from './layout/Video.js';
 ( ( $ ) => {
 	$( () => {
 		const isMobile = ( typeof window !== 'undefined' && window.innerWidth <= 768 );
-		const criticalModules = [ 'Header', 'BackgroundBlur', 'Scroll' ];
+		const criticalModules = [ 'Header', 'BackgroundBlur', 'Scroll', 'Video' ];
 		const modules = [
 			{ name: 'BackgroundBlur', fn: BackgroundBlur },
 			{ name: 'Header', fn: Header },
