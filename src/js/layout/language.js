@@ -1,34 +1,35 @@
 const Language = ( $ ) => {
 	const switcher = $( '.brxe-polylang-language-switcher' );
-	if ( switcher.length && $(window).width() < 767 ) {
-		switcher.find( 'a' ).map( function() {
-			const text = $( this ).attr( 'lang' ).split( '-' )[ 0 ];
-
-			$( this ).text( text );
+	if ( switcher.length && window.innerWidth < 767 ) {
+		switcher.find( 'a' ).each( function() {
+			const text = $( this ).attr( 'lang' )?.split( '-' )[ 0 ];
+			if ( text ) $( this ).text( text );
 		} );
 	}
 
-	const currentLang = $( '.current-lang' ).text();
-	$( '.Language-wrapper svg' ).after( currentLang );
+	const currentLang = $( '.current-lang' ).first().text();
+	if ( currentLang ) {
+		$( '.Language-wrapper svg' ).after( currentLang );
+	}
+
+	const getCookie = ( name ) => {
+		const value = `; ${document.cookie}`;
+		const parts = value.split( `; ${name}=` );
+		if ( parts.length === 2 ) {
+			const cookieValue = parts.pop().split( ';' ).shift();
+			try {
+				return decodeURIComponent( cookieValue );
+			} catch ( e ) {
+				return cookieValue;
+			}
+		}
+	};
 
 	// Browser language detection and pll_language cookie setting
 	const supportedLanguages = ['fr', 'nl', 'es', 'en'];
 	const browserLang = navigator.language.split('-')[0];
 
 	if (supportedLanguages.includes(browserLang)) {
-		const getCookie = (name) => {
-			const value = `; ${document.cookie}`;
-			const parts = value.split(`; ${name}=`);
-			if (parts.length === 2) {
-				const cookieValue = parts.pop().split(';').shift();
-				try {
-					return decodeURIComponent(cookieValue);
-				} catch (e) {
-					return cookieValue;
-				}
-			}
-		};
-
 		const pllCookie = getCookie('pll_language');
 		if (!pllCookie || pllCookie.trim() === '') {
 			const date = new Date();
@@ -37,64 +38,30 @@ const Language = ( $ ) => {
 		}
 	}
 
+	const lang = getCookie( 'pll_language' ) || 'nl';
+	const translateSrting = {
+		'es': { 'open': 'Leer más', 'close': 'Leer menos' },
+		'en': { 'open': 'Read more', 'close': 'Read less' },
+		'nl': { 'open': 'Meer lezen', 'close': 'Toon minder' },
+		'fr': { 'open': 'En savoir plus', 'close': 'Masquer' }
+	};
+	const translations = translateSrting[lang] || translateSrting['en'];
+
 	document.querySelectorAll( '.services_tab_open-item' ).forEach( ( tab ) => {
 		const btn = tab.querySelector( '.services_tab_open-btn' );
 		const info = tab.querySelector( '.services_tab_open-info' );
-		const translateSrting = {
-			'es': {
-				'open': 'Leer más',
-				'close': 'Leer menos',
-			},
-			'en': {
-				'open': 'Read more',
-				'close': 'Read less',
-			},
-			'nl': {
-				'open': 'Meer lezen',
-				'close': 'Toon minder',
-			},
-			'fr': {
-				'open': 'En savoir plus',
-				'close': 'Masquer',
-			}
-		};
 
-		const getCookie = ( name ) => {
-			const value = `; ${document.cookie}`;
-			const parts = value.split( `; ${name}=` );
-			if ( parts.length === 2 ) {
-				const cookieValue = parts.pop().split( ';' ).shift();
-				try {
-					return decodeURIComponent( cookieValue );
-				} catch ( e ) {
-					return cookieValue;
-				}
-			}
-		};
-
-		const lang = getCookie( 'pll_language' ) || 'nl'; // По умолчанию nl, как указано в описании
-		const translations = translateSrting[lang] || translateSrting['en'];
-
-
-		// Проверка осталась, а сообщение в консоль - убрали
-		if ( ! btn || ! info ) {
-			return;
-		}
+		if ( ! btn || ! info ) return;
 
 		const text = btn.querySelector( '.text' );
 		const icon = btn.querySelector( '.icon' );
 
-		if ( ! text || ! icon ) {
-			return;
-		}
+		if ( ! text || ! icon ) return;
 
 		let isOpen = false;
-
-		// Устанавливаем начальное значение текста
 		text.textContent = translations.open;
 
 		btn.addEventListener( 'click', () => {
-			console.log('click', isOpen);
 			if ( ! isOpen ) {
 				info.style.height = info.scrollHeight + 'px';
 				text.textContent = translations.close;

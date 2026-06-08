@@ -1,54 +1,73 @@
 const GeoContent = ( $ ) => {
-	const geoContent = $( '.geo-content-shortcode' );
-	if ( geoContent.length ) {
-		let dataID = [];
-		geoContent.map( function( i, el ) {
-			dataID.push( $( el ).data( 'id' ) );
-		} );
+	const initGeo = () => {
 
-		const data = {
-			action: appData.actionGeo,
-			nonce: appData.nonceGeo,
-			ids: dataID,
-			country: appData.country || 'BE',
-		};
+		const geoContent = $( '.geo-content-shortcode' );
+		if ( geoContent.length ) {
+			let dataID = [];
+			geoContent.map( function( i, el ) {
+				dataID.push( $( el ).data( 'id' ) );
+			} );
 
-		$.ajax( {
-			type: 'POST',
-			url: appData.ajaxUrl,
-			data: data,
-			cache: false,
-			success: function( res ) {
-				if ( res.success && res.data ) {
-					res.data.forEach( function( item ) {
-						$( '.geo-content-shortcode[data-id="' + item.id + '"]' ).html( item.content );
-					} );
+			const data = {
+				action: appData.actionGeo,
+				nonce: appData.nonceGeo,
+				ids: dataID,
+				country: appData.country || 'BE',
+			};
+
+			$.ajax( {
+				type: 'POST',
+				url: appData.ajaxUrl,
+				data: data,
+				cache: false,
+				success: function( res ) {
+					if ( res.success && res.data ) {
+						res.data.forEach( function( item ) {
+							const targets = $( '.geo-content-shortcode[data-id="' + item.id + '"]' );
+							targets.each( ( i, el ) => {
+								let content = item.content;
+								if ( content.includes( 'id="#' ) ) {
+									content = content.replace( /id="#([^"]+)"/g, 'id="$1"' );
+								}
+								$( el ).html( content );
+							} );
+						} );
+					}
+				},
+				error: function( xhr ) {
+					console.log( 'error...', xhr );
+					//error logging
 				}
-			},
-			error: function( xhr ) {
-				console.log( 'error...', xhr );
-				//error logging
-			}
-		} );
+			} );
+		}
+	};
+
+	if ( window.innerWidth <= 768 ) {
+		if ( window.requestIdleCallback ) {
+			window.requestIdleCallback( () => setTimeout( initGeo, 1000 ) );
+		} else {
+			setTimeout( initGeo, 2000 );
+		}
+	} else {
+		initGeo();
 	}
 
-	const geoContentMobile = $( '.open-popup' );
-	if(geoContentMobile.length){
-		geoContentMobile.on('click', function(e){
-			e.preventDefault();
+	$( document ).on( 'click', '.open-popup', function( e ) {
+		e.preventDefault();
+		$( this ).parents('.brxe-block').addClass('open-modal');
+		if($(this).data('target')){
+			console.log('target: '+$( this ).parents('.brxe-block').find( '.'+$(this).data('target') ));
+			$( this ).parents('.brxe-block').find( '.'+$(this).data('target') ).show();
+		}else{
+			$( this ).parent().find( '.popup-cal' ).show();
+		}
+	} );
 
-			geoContentMobile.parent().find('.popup-cal').show();
-		})
-	}
-
-	const closePopup = $( '.close-popup' );
-	if(closePopup.length){
-		closePopup.on('click', function(e){
-			e.preventDefault();
-
-			geoContentMobile.parent().parent().find('.popup-cal').hide();
-		})
-	}
+	$( document ).on( 'click', '.close-popup', function( e ) {
+		e.preventDefault();
+		$( this ).parents('.brxe-block').removeClass('open-modal');
+		$( this ).closest( '.popup-cal' ).hide();
+	} );
 };
 
 export default GeoContent;

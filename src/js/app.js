@@ -32,23 +32,65 @@ import Video from './layout/Video.js';
 
 ( ( $ ) => {
 	$( () => {
-		try {
-			BackgroundBlur( $ );
-			Header( $ );
-			Music( $ );
-			Forms( $ );
-			Scroll( $ );
-			Anchors( $ );
-			TabsMenu( $ );
-			HorizontalScroll( $ );
-			SwiperSliders( $ );
-			Tabs( $ );
-			Modal( $ );
-			Language($);
-			GeoContent($);
-			Video($);
-		} catch ( e ) {
-			console.error( 'Ошибка инициализации модулей:', e );
+		const isMobile = ( typeof window !== 'undefined' && window.innerWidth <= 768 );
+		const criticalModules = [ 'Header', 'BackgroundBlur', 'Scroll', 'Video' ];
+		const modules = [
+			{ name: 'BackgroundBlur', fn: BackgroundBlur },
+			{ name: 'Header', fn: Header },
+			{ name: 'Music', fn: Music },
+			{ name: 'Forms', fn: Forms },
+			{ name: 'Scroll', fn: Scroll },
+			{ name: 'Anchors', fn: Anchors },
+			{ name: 'TabsMenu', fn: TabsMenu },
+			{ name: 'HorizontalScroll', fn: HorizontalScroll },
+			{ name: 'SwiperSliders', fn: SwiperSliders },
+			{ name: 'Tabs', fn: Tabs },
+			{ name: 'Modal', fn: Modal },
+			{ name: 'Language', fn: Language },
+			{ name: 'GeoContent', fn: GeoContent },
+			{ name: 'Video', fn: Video },
+		];
+
+		const initModule = ( m ) => {
+			try {
+				if ( typeof m.fn === 'function' ) {
+					m.fn( $ );
+				}
+			} catch ( e ) {
+				console.error( `Ошибка инициализации модуля ${ m.name }:`, e );
+			}
+		};
+
+		if ( isMobile ) {
+			// 1. Инициализируем критические модули сразу
+			modules.filter( m => criticalModules.includes( m.name ) ).forEach( initModule );
+
+			// 2. Остальные модули инициализируем в фоне
+			const secondaryModules = modules.filter( m => ! criticalModules.includes( m.name ) );
+			let index = 0;
+
+			const initNext = ( deadline ) => {
+				while ( ( deadline.timeRemaining() > 0 || deadline.didTimeout ) && index < secondaryModules.length ) {
+					initModule( secondaryModules[ index ] );
+					index++;
+				}
+
+				if ( index < secondaryModules.length ) {
+					window.requestIdleCallback( initNext );
+				}
+			};
+
+			if ( window.requestIdleCallback ) {
+				window.requestIdleCallback( initNext );
+			} else {
+				// Fallback для браузеров без requestIdleCallback
+				const initAll = () => {
+					secondaryModules.forEach( m => initModule( m ) );
+				};
+				setTimeout( initAll, 200 );
+			}
+		} else {
+			modules.forEach( initModule );
 		}
 	} );
 } )( jQuery );

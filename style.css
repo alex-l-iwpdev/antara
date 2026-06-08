@@ -1,7 +1,11 @@
 /*
 Theme Name: Bricks Child
 Template: bricks
-Version: 1.0
+Version: 1.2.17
 Author: ALex L I WP DEV
 Description: Child theme for bricks
 */
+ul.brxe-list .description,
+ul.list-two-colums .description{
+	display: inline !important;
+}

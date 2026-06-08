@@ -1,6 +1,17 @@
 import gsap from 'gsap';
 
 const BackgroundBlur = ( $ ) => {
+	// Простая проверка на мобильное устройство
+	const isMobile = ( typeof window !== 'undefined' && window.innerWidth <= 768 ) || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test( navigator.userAgent );
+	if ( isMobile ) {
+		console.log( '[BackgroundBlur] Отключено на мобильных устройствах для оптимизации' );
+		const bgElements = document.querySelectorAll( '.bg-blur' );
+		bgElements.forEach( el => {
+			el.style.display = 'none';
+		} );
+		return;
+	}
+
 	// Предотвращаем повторную инициализацию
 	const body = document.body;
 	if ( body && body.dataset.backgroundBlurInitialized === 'true' ) {
