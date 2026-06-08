@@ -54,11 +54,18 @@ const GeoContent = ( $ ) => {
 
 	$( document ).on( 'click', '.open-popup', function( e ) {
 		e.preventDefault();
-		$( this ).parent().find( '.popup-cal' ).show();
+		$( this ).parents('.brxe-block').addClass('open-modal');
+		if($(this).data('target')){
+			console.log('target: '+$( this ).parents('.brxe-block').find( '.'+$(this).data('target') ));
+			$( this ).parents('.brxe-block').find( '.'+$(this).data('target') ).show();
+		}else{
+			$( this ).parent().find( '.popup-cal' ).show();
+		}
 	} );
 
-	$( document ).on( 'click', '#close-popup', function( e ) {
+	$( document ).on( 'click', '.close-popup', function( e ) {
 		e.preventDefault();
+		$( this ).parents('.brxe-block').removeClass('open-modal');
 		$( this ).closest( '.popup-cal' ).hide();
 	} );
 };
