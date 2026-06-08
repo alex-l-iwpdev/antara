@@ -44,10 +44,5 @@
   },
   "resolutions": {
     "webpack": "5.105.4"
-  },
-  "pnpm": {
-    "overrides": {
-      "webpack": "5.105.4"
-    }
   }
 }

@@ -24,7 +24,7 @@ JS into `assets/`.
 
 ## Install
 
-Use Yarn, not npm or pnpm, so you stay on the lockfile this project is documented against.
+Use Yarn, not npm, so you stay on the lockfile this project is documented against.
 
 ```bash
 yarn install --frozen-lockfile
@@ -62,12 +62,9 @@ composer phpcs
 This project keeps `webpack` fixed to `5.105.4` because Laravel Mix 6 depends on internals
 that changed in later 5.x releases. Newer versions break this build.
 
-The lock is enforced in two places:
+The lock is enforced through Yarn `resolutions` in `package.json`.
 
-- `package.json` uses Yarn `resolutions`
-- `package.json` also keeps the existing `pnpm.overrides` entry for completeness
-
-Do not remove either unless you are also migrating away from Laravel Mix 6.
+Do not remove it unless you are also migrating away from Laravel Mix 6.
 
 ### The failure modes
 
