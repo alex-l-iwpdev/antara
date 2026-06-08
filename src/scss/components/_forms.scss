@@ -1,0 +1,112 @@
+.gform_wrapper.gravity-theme {
+	--input-color: var(--A--Color--Black);
+	--border-color: var(--input-color);
+	--fields-row-gap: clamp(1.75rem, 1.2885rem + 2.0513vw, 3.75rem);
+	--fields-column-gap: .5rem;
+	--textarea-padding: 1.5rem;
+	--line-height: 2.5;
+
+	.gfield_label {
+		color: var(--input-color);
+		font-weight: 400;
+		line-height: var(--line-height);
+		margin-block: 0;
+		position: absolute;
+		transition: transform 100ms ease-out;
+		top: var(--input-padding);
+		transform: translate3d(0, 0, 0);
+		will-change: transform;
+		
+		&.floating {
+			font-size: .875rem;
+			left: 0;
+			top: 0;
+			transform: translate3d(0, -100%, 0);
+		}
+	}
+	
+	.gfield {
+		--input-padding: 0;
+	}
+	
+	.gfield--type-textarea {
+		--input-padding: var(--textarea-padding);
+	}
+
+	.gform_fields {
+		gap: var(--fields-row-gap) var(--fields-column-gap);
+		padding-block-start: var(--fields-row-gap)
+	}
+	
+	input:is([type="text"],[type="url"],[type="email"],[type="tel"]) {
+		background-color: transparent;
+		border: none;
+		border-block-end: 1px solid var(--border-color);
+		border-radius: 0;
+		box-shadow: none;
+		padding: 0;
+	}
+
+	textarea {
+		background-color: transparent;
+		border-color: var(--border-color);
+		border-radius: 1rem;
+		font-size: 1rem;
+		padding: var(--textarea-padding);
+	}
+	
+	.gfield_validation_message,
+	.validation-message {
+		background: none;
+		margin: 0;
+		padding: 0;
+	}
+	
+	.gform_validation_errors {
+		background: rgb(from var(--bricks-color-106bab) r g b / .25);
+		padding: 1rem;
+	}
+	
+	.gform_validation_errors,
+	.gfield_validation_message,
+	.validation-message {
+		border: none;
+		
+		.gform_submission_error {
+			align-items: center;
+			display: flex;
+			gap: 1em;
+		}
+		
+		.gform-icon {
+			position: static;
+		}
+	}
+	
+}
+
+.gfield {
+	line-height: var(--line-height);
+	position: relative;
+}
+
+.ginput_complex {
+	column-gap: var(--fields-column-gap);
+	
+	&:not(.ginput_container_address) span {
+		padding-inline: 0 !important;
+	}
+}
+
+.gfield--type-textarea {
+	
+	.gfield_label {
+		left: var(--textarea-padding);
+		top: var(--textarea-padding);
+	}
+
+}
+
+.submit-button-wrapper {
+	position: relative;
+}
