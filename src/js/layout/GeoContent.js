@@ -1,5 +1,6 @@
 const GeoContent = ( $ ) => {
 	const initGeo = () => {
+
 		const geoContent = $( '.geo-content-shortcode' );
 		if ( geoContent.length ) {
 			let dataID = [];
@@ -22,9 +23,13 @@ const GeoContent = ( $ ) => {
 				success: function( res ) {
 					if ( res.success && res.data ) {
 						res.data.forEach( function( item ) {
-							const targets = document.querySelectorAll( '.geo-content-shortcode[data-id="' + item.id + '"]' );
-							targets.forEach( el => {
-								el.innerHTML = item.content;
+							const targets = $( '.geo-content-shortcode[data-id="' + item.id + '"]' );
+							targets.each( ( i, el ) => {
+								let content = item.content;
+								if ( content.includes( 'id="#' ) ) {
+									content = content.replace( /id="#([^"]+)"/g, 'id="$1"' );
+								}
+								$( el ).html( content );
 							} );
 						} );
 					}
@@ -47,23 +52,15 @@ const GeoContent = ( $ ) => {
 		initGeo();
 	}
 
-	const geoContentMobile = $( '.open-popup' );
-	if(geoContentMobile.length){
-		geoContentMobile.on('click', function(e){
-			e.preventDefault();
+	$( document ).on( 'click', '.open-popup', function( e ) {
+		e.preventDefault();
+		$( this ).parent().find( '.popup-cal' ).show();
+	} );
 
-			geoContentMobile.parent().find('.popup-cal').show();
-		})
-	}
-
-	const closePopup = $( '.close-popup' );
-	if(closePopup.length){
-		closePopup.on('click', function(e){
-			e.preventDefault();
-
-			geoContentMobile.parent().parent().find('.popup-cal').hide();
-		})
-	}
+	$( document ).on( 'click', '#close-popup', function( e ) {
+		e.preventDefault();
+		$( this ).closest( '.popup-cal' ).hide();
+	} );
 };
 
 export default GeoContent;
