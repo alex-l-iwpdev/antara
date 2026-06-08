@@ -6,7 +6,7 @@ const Forms = ( $ ) => {
 
 	const cleanups = [];
 
-	document.querySelectorAll( '.form-group, .gfield' ).forEach( ( group ) => {
+	document.querySelectorAll( '.form-group' ).forEach( ( group ) => {
 		const input = group.querySelector( 'input' );
 		const label = group.querySelector( 'label' );
 		if ( ! input || ! label ) return;
