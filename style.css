@@ -13,12 +13,65 @@ ul.list-two-colums .description{
 	min-width: max-content !important;
 	padding: 10px 15px !important;
 }
-@media (min-width: 1921px) {
+.brxe-button:after{
+	content: '';
+	position: relative;
+	width: 0.938vw;
+	height: 0.938vw;
+	display: inline-block;
+	background-image:url(/wp-content/uploads/2026/06/arrow-right.svg);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center; 
+}
+.brx-dropdown-content .brxe-text-link .text:after,
+.brxe-dropdown .brx-submenu-toggle:after{
+	content: '';
+	position: relative;
+	width: 0.677vw;
+	height: 0.365vw;
+	display: inline-block;
+	background-image:url(/wp-content/uploads/2026/06/chevron-down.svg);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center; 
+}
+.brx-dropdown-content .brxe-text-link .text:after{ 
+	background-image:url(/wp-content/uploads/2026/06/chevron-right.svg);
+	height: 0.677vw;
+	width: 0.365vw;
+	margin-left: 5px;
+	top: 1px;
+}
+.brx-dropdown-content .brxe-text-link .icon,
+.brxe-dropdown button,
+.brxe-button i{
+	display: none !important;
+}
+.brxe-button.white:after,
+.brxe-dropdown.white .brx-dropdown-content .brxe-text-link .text:after,
+.brxe-dropdown.white .brx-submenu-toggle:after{
+	filter: brightness(0) saturate(100%) invert(100%) sepia(3%) saturate(12%) hue-rotate(350deg) brightness(104%) contrast(102%);
+}
+@media (min-width: 1921px) {  
+	.brxe-button:after{
+		width: 19px;
+		height: 14px;
+	}
 	.brxe-button,
 	.brxe-dropdown{
 		height: 44px !important;
 		padding-left: 20px !important;
 		padding-right: 20px !important;
+	}
+	.brx-dropdown-content .brxe-text-link .text:after,
+	.brxe-dropdown .brx-submenu-toggle:after{
+		width: 14px;
+		height: 6px;
+	}
+	.brx-dropdown-content .brxe-text-link .text:after{
+		width: 6px;
+		height: 14px;
 	}
 }
 @media (max-width: 1920px) and (min-width: 768px){
@@ -27,5 +80,31 @@ ul.list-two-colums .description{
 		padding-left: 1.190vw !important;
 		padding-right: 1.190vw !important;
 	}
-	
+}
+@media (max-width: 767px){
+	.brxe-button:after{
+		width: 12px;
+		height: 9px;
+	}
+	.brxe-dropdown,
+	.brxe-button{
+		height: 34px !important;
+	}
+	.brx-dropdown-content .brxe-text-link .text:after,
+	.brxe-dropdown .brx-submenu-toggle:after{
+		width: 9;
+		height: 5px;
+	}
+	.brx-dropdown-content .brxe-text-link .text:after{
+		width: 5px;
+		height: 9px;
+	}
+	.brxe-button.bricks-background-primary{
+		font-size: 14px !important; 
+	}
+}
+@media (max-width: 390px){
+	.brxe-button.bricks-background-primary{
+		font-size: 14px !important; 
+	}
 }
