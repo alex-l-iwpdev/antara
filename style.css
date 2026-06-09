@@ -9,3 +9,23 @@ ul.brxe-list .description,
 ul.list-two-colums .description{
 	display: inline !important;
 }
+.brx-dropdown-content{
+	min-width: max-content !important;
+	padding: 10px 15px !important;
+}
+@media (min-width: 1921px) {
+	.brxe-button,
+	.brxe-dropdown{
+		height: 44px !important;
+		padding-left: 20px !important;
+		padding-right: 20px !important;
+	}
+}
+@media (max-width: 1920px) {
+	.brxe-button,
+	.brxe-dropdown{
+		padding-left: 1.190vw !important;
+		padding-right: 1.190vw !important;
+	}
+	
+}
