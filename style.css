@@ -73,6 +73,13 @@ ul.list-two-colums .description{
 		width: 6px;
 		height: 14px;
 	}
+	.brx-submenu-toggle > span,
+	.brx-dropdown-content .brxe-text-link{
+		font-size: 20px !important;
+	}
+	.brx-dropdown-content .menu-item{
+		margin: 5px 0;
+	}
 }
 @media (max-width: 1920px) and (min-width: 768px){
 	.brxe-button,

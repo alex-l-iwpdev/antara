@@ -55,7 +55,7 @@ const GeoContent = ( $ ) => {
 	$( document ).on( 'click', '.open-popup', function( e ) {
 		e.preventDefault();
 		$( this ).parents('.brxe-block').addClass('open-modal');
-		if($(this).data('target') ==='fix-popup'){
+		if($(this).data('target')){
 			$( '.'+$(this).data('target') ).show();
 		}else if($(this).data('target')){
 			$( this ).parents('.brxe-block').find( '.'+$(this).data('target') ).show();
