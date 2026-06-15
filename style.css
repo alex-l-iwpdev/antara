@@ -5,6 +5,29 @@ Version: 1.2.17
 Author: ALex L I WP DEV
 Description: Child theme for bricks
 */
+body:not(.home) header .btn-menu.active {
+	filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(277deg) brightness(103%) contrast(102%);
+}
+.brxe-breadcrumbs a{
+	opacity: 0.4;
+	transition: all 0.3s ease;
+}
+.brxe-breadcrumbs a:hover{
+	opacity: 0.8;
+}
+.brxe-polylang-language-switcher{
+	right: 0;
+}
+.header#brx-header,
+.header.brxe-div{
+	pointer-events: none !important;
+}
+.header .btn-menu,
+.header .header_logo,
+.header .header-right-wrapper,
+.header .menu-open-wrapper{
+	pointer-events: auto;
+}
 ul.brxe-list .description,
 ul.list-two-colums .description{
 	display: inline !important;
@@ -13,7 +36,20 @@ ul.list-two-colums .description{
 	min-width: max-content !important;
 	padding: 10px 15px !important;
 }
-.brxe-button:after{
+.brxe-button{
+	cursor: pointer;
+	
+}
+.brxe-button:before{
+	display: none !important;
+}
+.brxe-button [class*="fa-arrow-right"]{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+.brxe-button [class*="fa-arrow-right"]:before{
 	content: '';
 	position: relative;
 	width: 0.938vw;
@@ -23,6 +59,12 @@ ul.list-two-colums .description{
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center; 
+}
+.brxe-dropdown .brx-submenu-toggle button{
+	display: none; 
+}
+.brx-dropdown-content .brxe-text-link .icon{
+	display: none;
 }
 .brx-dropdown-content .brxe-text-link .text:after,
 .brxe-dropdown .brx-submenu-toggle:after{
@@ -43,18 +85,77 @@ ul.list-two-colums .description{
 	margin-left: 5px;
 	top: 1px;
 }
-.brx-dropdown-content .brxe-text-link .icon,
-.brxe-dropdown button,
-.brxe-button i{
-	display: none !important;
-}
-.brxe-button.white:after,
+.brxe-button.white [class*="fa-arrow-right"]:before,
 .brxe-dropdown.white .brx-dropdown-content .brxe-text-link .text:after,
 .brxe-dropdown.white .brx-submenu-toggle:after{
 	filter: brightness(0) saturate(100%) invert(100%) sepia(3%) saturate(12%) hue-rotate(350deg) brightness(104%) contrast(102%);
 }
+.brxe-dropdown,
+.brxe-button {
+    position: relative;
+}
+section .brxe-dropdown:after,
+.brxe-button::after { 
+    content: '';
+    width: 5px !important;
+    height: 2px !important;
+    box-shadow: 0 0 10px 5px var(--A--Color--Beige) !important;
+    background: var(--bricks-border-color);
+    filter: blur(10px);
+    border-radius: 50%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    offset-path: inset(0% round 30px);
+    offset-anchor: center;
+    animation: orbit 4s ease infinite;
+    z-index: -1;
+    pointer-events: none;
+}
+.accordion-title-wrapper h4{
+	width: calc(100% - 30px);
+}
+.brxe-accordion-nested .listening .ion-ios-add:before{
+	font-size: 32px !important;
+}
+.brxe-accordion-nested .listening.brx-open .ion-ios-add:before{
+	content: "\f1fc" !important;
+	
+}
+.hover-img:not(:has(.brxe-dropdown)){
+	overflow: hidden;
+	border-radius: 16px ;
+}
+.hover-img:has(.brxe-dropdown) .img{
+	overflow: hidden;
+	border-radius: 16px ;
+}
+.hover-img img{
+	transition: all 0.3s ease;
+}
+.hover-img:hover img{
+	transform: scale(1.1);
+}
+body:not(.home) .brxe-video{
+	container-type: inline-size;
+	padding: 0 !important;
+}
+body:not(.home) .brxe-video video{
+	width: 100%;
+	height: calc(100cqw / 2.3105);
+	position: static !important; 
+}
+@keyframes orbit {
+    0% {
+        offset-distance: 0%;
+    }
+    100% {
+        offset-distance: 100%;
+    }
+} 
+
 @media (min-width: 1921px) {  
-	.brxe-button:after{
+	.brxe-button [class*="fa-arrow-right"]:before{
 		width: 19px;
 		height: 14px;
 	}
@@ -88,10 +189,23 @@ ul.list-two-colums .description{
 		padding-right: 1.190vw !important;
 	}
 }
+@media (max-width: 991px){
+/*
+	.popup-cal{
+	
+	}
+*/
+}
+
 @media (max-width: 767px){
-	.brxe-button:after{
+	.brxe-button [class*="fa-arrow-right"]:before{
 		width: 12px;
 		height: 9px;
+		
+	}
+	.brxe-dropdown{
+		padding-right: 15px;
+		padding-left: 15px;
 	}
 	.brxe-dropdown,
 	.brxe-button{
@@ -99,7 +213,7 @@ ul.list-two-colums .description{
 	}
 	.brx-dropdown-content .brxe-text-link .text:after,
 	.brxe-dropdown .brx-submenu-toggle:after{
-		width: 9;
+		width: 9px;
 		height: 5px;
 	}
 	.brx-dropdown-content .brxe-text-link .text:after{
@@ -108,6 +222,18 @@ ul.list-two-colums .description{
 	}
 	.brxe-button.bricks-background-primary{
 		font-size: 14px !important; 
+	}
+	br{
+		display: none !important;
+	}
+}
+@media (max-width: 561px){
+	.popup-cal{
+		position: fixed;
+		top: 0;
+		transform: none;
+		left: 0;
+		width: calc(100% - 40px) !important;
 	}
 }
 @media (max-width: 390px){

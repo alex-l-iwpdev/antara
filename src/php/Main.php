@@ -271,6 +271,16 @@ class Main {
 				self::THEME_VERSION,
 				true
 		);
+		wp_enqueue_script(
+				'waypoints',
+				get_stylesheet_directory_uri() . '/assets/js/waypoints.min.js',
+				[
+						'jquery',
+						'bricks-scripts',
+				],
+				self::THEME_VERSION,
+				true
+		);
 
 		wp_localize_script(
 				'bricks-child-app',
@@ -283,6 +293,7 @@ class Main {
 		);
 
 		wp_enqueue_style( 'bricks-child-style', get_stylesheet_directory_uri() . '/assets/css/app.css', [ 'bricks-frontend' ] );
+		wp_enqueue_style( 'animation-css', get_stylesheet_directory_uri() . '/assets/css/animation-css.css', [ 'bricks-frontend' ] );
 	}
 
 	/**
