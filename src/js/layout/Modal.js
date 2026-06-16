@@ -150,8 +150,9 @@ const Modal = ( $ ) => {
 		document.location.reload();
 	} );
 
-	const welcomeModal = $( '.page-id-1068 footer .brxe-welcome-modal' );
-	if ( welcomeModal.length ) {
+	const welcomeModal = $( 'footer .brxe-welcome-modal' );
+	const geoContent = $( '.geo-content-shortcode' );
+	if ( welcomeModal.length && geoContent.length ) {
 		const modalFlag = getCookie( 'welcome-modal' );
 		const location = getCookie( 'location' );
 		if ( ! modalFlag || ! location ) {

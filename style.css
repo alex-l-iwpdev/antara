@@ -1,7 +1,7 @@
 /*
 Theme Name: Bricks Child
 Template: bricks
-Version: 1.2.17
+Version: 1.2.18
 Author: ALex L I WP DEV
 Description: Child theme for bricks
 */
@@ -38,7 +38,7 @@ ul.list-two-colums .description{
 }
 .brxe-button{
 	cursor: pointer;
-	
+
 }
 .brxe-button:before{
 	display: none !important;
@@ -58,10 +58,10 @@ ul.list-two-colums .description{
 	background-image:url(/wp-content/uploads/2026/06/arrow-right.svg);
 	background-size: contain;
 	background-repeat: no-repeat;
-	background-position: center; 
+	background-position: center;
 }
 .brxe-dropdown .brx-submenu-toggle button{
-	display: none; 
+	display: none;
 }
 .brx-dropdown-content .brxe-text-link .icon{
 	display: none;
@@ -76,9 +76,9 @@ ul.list-two-colums .description{
 	background-image:url(/wp-content/uploads/2026/06/chevron-down.svg);
 	background-size: contain;
 	background-repeat: no-repeat;
-	background-position: center; 
+	background-position: center;
 }
-.brx-dropdown-content .brxe-text-link .text:after{ 
+.brx-dropdown-content .brxe-text-link .text:after{
 	background-image:url(/wp-content/uploads/2026/06/chevron-right.svg);
 	height: 0.677vw;
 	width: 0.365vw;
@@ -95,7 +95,7 @@ ul.list-two-colums .description{
     position: relative;
 }
 section .brxe-dropdown:after,
-.brxe-button::after { 
+.brxe-button::after {
     content: '';
     width: 5px !important;
     height: 2px !important;
@@ -120,7 +120,7 @@ section .brxe-dropdown:after,
 }
 .brxe-accordion-nested .listening.brx-open .ion-ios-add:before{
 	content: "\f1fc" !important;
-	
+
 }
 .hover-img:not(:has(.brxe-dropdown)){
 	overflow: hidden;
@@ -143,7 +143,7 @@ body:not(.home) .brxe-video{
 body:not(.home) .brxe-video video{
 	width: 100%;
 	height: calc(100cqw / 2.3105);
-	position: static !important; 
+	position: static !important;
 }
 @keyframes orbit {
     0% {
@@ -152,9 +152,9 @@ body:not(.home) .brxe-video video{
     100% {
         offset-distance: 100%;
     }
-} 
+}
 
-@media (min-width: 1921px) {  
+@media (min-width: 1921px) {
 	.brxe-button [class*="fa-arrow-right"]:before{
 		width: 19px;
 		height: 14px;
@@ -192,7 +192,7 @@ body:not(.home) .brxe-video video{
 @media (max-width: 991px){
 /*
 	.popup-cal{
-	
+
 	}
 */
 }
@@ -201,7 +201,7 @@ body:not(.home) .brxe-video video{
 	.brxe-button [class*="fa-arrow-right"]:before{
 		width: 12px;
 		height: 9px;
-		
+
 	}
 	.brxe-dropdown{
 		padding-right: 15px;
@@ -221,7 +221,7 @@ body:not(.home) .brxe-video video{
 		height: 9px;
 	}
 	.brxe-button.bricks-background-primary{
-		font-size: 14px !important; 
+		font-size: 14px !important;
 	}
 	br{
 		display: none !important;
@@ -238,6 +238,6 @@ body:not(.home) .brxe-video video{
 }
 @media (max-width: 390px){
 	.brxe-button.bricks-background-primary{
-		font-size: 14px !important; 
+		font-size: 14px !important;
 	}
 }
