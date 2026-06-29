@@ -1,15 +1,51 @@
 const Language = ( $ ) => {
 	const switcher = $( '.brxe-polylang-language-switcher' );
-	if ( switcher.length && window.innerWidth < 767 ) {
+	if ( switcher.length ) {
+		// Store original full language names to restore them on desktop sizes
 		switcher.find( 'a' ).each( function() {
-			const text = $( this ).attr( 'lang' )?.split( '-' )[ 0 ];
-			if ( text ) $( this ).text( text );
+			const $a = $( this );
+			if ( ! $a.attr( 'data-original-text' ) ) {
+				$a.attr( 'data-original-text', $a.text() );
+			}
 		} );
-	}
 
-	const currentLang = $( '.current-lang' ).first().text();
-	if ( currentLang ) {
-		$( '.Language-wrapper svg' ).after( currentLang );
+		// Create/get a span to display the current language next to the SVG
+		let displaySpan = $( '.Language-wrapper .current-lang-display' );
+		if ( ! displaySpan.length ) {
+			displaySpan = $( '<span class="current-lang-display"></span>' );
+			$( '.Language-wrapper svg' ).after( displaySpan );
+		}
+
+		let wasMobile = null;
+		const updateLanguageSwitcher = () => {
+			const isMobile = window.innerWidth < 768;
+			
+			// Only update DOM if the state changed (mobile <-> desktop)
+			if ( wasMobile === isMobile ) return;
+			wasMobile = isMobile;
+
+			switcher.find( 'a' ).each( function() {
+				const $a = $( this );
+				if ( isMobile ) {
+					const text = $a.attr( 'lang' )?.split( '-' )[ 0 ];
+					if ( text ) $a.text( text );
+				} else {
+					const originalText = $a.attr( 'data-original-text' );
+					if ( originalText ) $a.text( originalText );
+				}
+			} );
+
+			const currentLang = $( '.current-lang' ).first().text();
+			if ( currentLang ) {
+				displaySpan.text( currentLang );
+			}
+		};
+
+		// Run initially
+		updateLanguageSwitcher();
+
+		// Run on window resize
+		$( window ).on( 'resize', updateLanguageSwitcher );
 	}
 
 	const getCookie = ( name ) => {

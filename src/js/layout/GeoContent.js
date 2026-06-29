@@ -56,18 +56,22 @@ const GeoContent = ( $ ) => {
 		e.preventDefault();
 		$( this ).parents('.brxe-block').addClass('open-modal');
 		if($(this).data('target')){
-			$( '.'+$(this).data('target') ).show();
+			$( '.'+$(this).data('target') ).addClass('popup-cal-open');
+			$('body').addClass('popup-active')
 		}else if($(this).data('target')){
-			$( this ).parents('.brxe-block').find( '.'+$(this).data('target') ).show();
+			$( this ).parents('.brxe-block').find( '.'+$(this).data('target') ).addClass('popup-cal-open');
+			$('body').addClass('popup-active')
 		}else{
-			$( this ).parent().find( '.popup-cal' ).show();
+			$( this ).parent().find( '.popup-cal' ).addClass('popup-cal-open');
+			$('body').addClass('popup-active')
 		}
 	} );
 
 	$( document ).on( 'click', '.close-popup', function( e ) {
 		e.preventDefault();
 		$( this ).parents('.brxe-block').removeClass('open-modal');
-		$( this ).closest( '.popup-cal' ).hide();
+		$( this ).closest( '.popup-cal' ).removeClass('popup-cal-open');
+		$('body').removeClass('popup-active');
 	} );
 };
 
