@@ -1,47 +1,54 @@
 const Shop = ( $ ) => {
+	// Opening a card
+	const shopListItemsLink = document.querySelectorAll( '.shop-list-item-link' );
+	if ( shopListItemsLink ) {
+		shopListItemsLink.forEach( ( link ) => {
+			link.addEventListener( 'click', ( e ) => {
+				e.preventDefault();
 
-	document.querySelectorAll( '.shop-list-item-link' ).forEach( ( link ) => {
-		link.addEventListener( 'click', ( e ) => {
-			e.preventDefault();
+				const item = link.closest( '.shop-list-item' );
+				const openBlock = item.querySelector( '.shop-list-item-open' );
 
-			const item = link.closest( '.shop-list-item' );
-			const openBlock = item.querySelector( '.shop-list-item-open' );
+				if ( openBlock ) {
+					openBlock.style.display = 'flex';
+					openBlock.style.opacity = '0';
+					openBlock.style.transition = 'opacity 0.4s ease';
 
-			if ( openBlock ) {
-				openBlock.style.display = 'flex';
-				openBlock.style.opacity = '0';
-				openBlock.style.transition = 'opacity 0.4s ease';
-
-				requestAnimationFrame( () => {
-					openBlock.style.opacity = '1';
-				} );
-			}
+					requestAnimationFrame( () => {
+						openBlock.style.opacity = '1';
+					} );
+				}
+			} );
 		} );
-	} );
+	}
 
-	document.querySelectorAll( '.shop-list-item-close' ).forEach( ( closeBtn ) => {
-		closeBtn.addEventListener( 'click', ( e ) => {
-			e.preventDefault();
+	const shopListItemClose = document.querySelectorAll( '.shop-list-item-close' );
 
-			const item = closeBtn.closest( '.shop-list-item' );
-			const openBlock = item.querySelector( '.shop-list-item-open' );
+	if ( shopListItemClose ) {
+		shopListItemClose.forEach( ( closeBtn ) => {
+			closeBtn.addEventListener( 'click', ( e ) => {
+				e.preventDefault();
 
-			if ( openBlock ) {
-				openBlock.style.transition = 'opacity 0.4s ease';
-				openBlock.style.opacity = '0';
+				const item = closeBtn.closest( '.shop-list-item' );
+				const openBlock = item.querySelector( '.shop-list-item-open' );
 
-				// After the animation is complete (after 400ms), hide
-				setTimeout( () => {
-					openBlock.style.display = 'none';
-				}, 400 );
-			}
+				if ( openBlock ) {
+					openBlock.style.transition = 'opacity 0.4s ease';
+					openBlock.style.opacity = '0';
+
+					// After the animation is completed (after 400ms) hide
+					setTimeout( () => {
+						openBlock.style.display = 'none';
+					}, 400 );
+				}
+			} );
 		} );
-	} );
+	}
 
 	const items = document.querySelectorAll( '.shop-list-item' );
 	const imgs = document.querySelectorAll( '.shop-conent-img' );
 
-	// Показываем первый product-img по умолчанию
+	// Show the first product-img by default
 	if ( imgs.length ) {
 		imgs[ 0 ].classList.add( 'active' );
 	}

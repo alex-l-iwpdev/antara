@@ -4,6 +4,9 @@ const Modal = ( $ ) => {
 	if ( body && body.dataset.modalInitialized === 'true' ) return;
 	if ( body ) body.dataset.modalInitialized = 'true';
 
+	const locationHField = $( '#input_4_8' );
+	const langHField = $( '#input_4_9' );
+
 	// Getting banner elements
 	const modalFormOne = document.querySelector( '.modal-form-one' );
 	const modalTop = document.getElementById( 'modal-top' );
@@ -24,26 +27,26 @@ const Modal = ( $ ) => {
 		}
 	};
 
-	$('.read-more').click(function(e) {
+	$( '.read-more' ).click( function( e ) {
 		e.preventDefault();
-		if($(this).find('.fas').hasClass('fa-plus')){
-			$(this).find('.fas').removeClass('fa-plus').addClass('fa-minus');
-			$(this).parent().parent().find('.hidden-text').slideDown();
-		}else{
-			$(this).find('.fas').removeClass('fa-minus').addClass('fa-plus');
-			$(this).parent().parent().find('.hidden-text').slideUp();
+		if ( $( this ).find( '.fas' ).hasClass( 'fa-plus' ) ) {
+			$( this ).find( '.fas' ).removeClass( 'fa-plus' ).addClass( 'fa-minus' );
+			$( this ).parent().parent().find( '.hidden-text' ).slideDown();
+		} else {
+			$( this ).find( '.fas' ).removeClass( 'fa-minus' ).addClass( 'fa-plus' );
+			$( this ).parent().parent().find( '.hidden-text' ).slideUp();
 		}
-	});
-	$('.read-more-next').click(function(e) {
+	} );
+	$( '.read-more-next' ).click( function( e ) {
 		e.preventDefault();
-		if($(this).find('.fas').hasClass('fa-plus')){
-			$(this).find('.fas').removeClass('fa-plus').addClass('fa-minus');
-			$(this).next().slideDown();
-		}else{
-			$(this).find('.fas').removeClass('fa-minus').addClass('fa-plus');
-			$(this).next().slideUp();
+		if ( $( this ).find( '.fas' ).hasClass( 'fa-plus' ) ) {
+			$( this ).find( '.fas' ).removeClass( 'fa-plus' ).addClass( 'fa-minus' );
+			$( this ).next().slideDown();
+		} else {
+			$( this ).find( '.fas' ).removeClass( 'fa-minus' ).addClass( 'fa-plus' );
+			$( this ).next().slideUp();
 		}
-	});
+	} );
 	// Flags
 	let modalFormOneShown = false;
 	let modalTopShown = false;
@@ -133,6 +136,15 @@ const Modal = ( $ ) => {
 
 	const locationText = getCookie( 'location_name' );
 	if ( locationText ) {
+
+		if ( locationHField.length ) {
+			locationHField.val( locationText );
+		}
+
+		if ( langHField.length ) {
+			langHField.val( getCookie( 'pll_language' ) || 'EN' );
+		}
+
 		$( '.location-wrapper .brx-submenu-toggle span' ).text( locationText );
 	}
 

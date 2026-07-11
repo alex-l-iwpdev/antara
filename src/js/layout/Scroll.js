@@ -1,258 +1,196 @@
-import gsap from 'gsap';
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollSmoother } from "gsap/ScrollSmoother";
 
-const Scroll = ( $ ) => {
-	// Простая проверка на мобильное устройство: отключаем тяжелую карусель
-	const isMobile = ( typeof window !== 'undefined' && window.innerWidth <= 768 ) || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test( navigator.userAgent );
-	if ( isMobile ) {
-		console.log('[Scroll] Отключено на мобильных устройствах для оптимизации');
-		return;
-	}
-	const mod = ( n, m ) => ( ( n % m ) + m ) % m;
 
-	const initScrollBasedScroller = () => {
-		const scrollers = document.querySelectorAll( '.scroller' );
-		console.log( `Scroll: Found ${scrollers.length} scrollers` );
+const Scroll = ($)=>{
+// Make sure GSAP is connected
+	document.addEventListener("DOMContentLoaded", () => {
+		initScrollBasedScroller();
+	});
 
-		scrollers.forEach( ( scroller, index ) => {
-			if ( scroller.dataset.initialized ) {
-				return;
-			}
-			console.log( `Scroll: Initializing scroller ${index}` );
-			scroller.dataset.initialized = 'true';
+	function initScrollBasedScroller() {
+		const scrollers = document.querySelectorAll(".scroller");
 
-			const wrapper = scroller.querySelector( '.scroller-wrapper' );
-			if ( ! wrapper ) {
-				return;
-			}
+		scrollers.forEach((scroller) => {
+			const wrapper = scroller.querySelector(".scroller-wrapper");
+			if (!wrapper) return;
 
-			// Отключаем нативную анимацию Bricks и конфликтующие стили
-			scroller.removeAttribute( 'data-animated' );
-			scroller.classList.remove( 'bricks-animated' ); // На всякий случай
-			scroller.style.setProperty( '--_animation-state', 'paused', 'important' );
+			// <--- NEW: Remove <noscript> tags so as not to interfere ---
+			wrapper.querySelectorAll('noscript').forEach(ns => ns.remove());
 
-			// Принудительные стили для контейнера и враппера
-			scroller.style.overflow = 'hidden';
-			scroller.style.position = 'relative';
+			const items = Array.from(wrapper.children);
+			if (items.length === 0) return;
 
-			wrapper.style.display = 'flex';
-			wrapper.style.flexWrap = 'nowrap';
-			wrapper.style.willChange = 'transform';
-			wrapper.style.setProperty( 'transition', 'none', 'important' );
-			wrapper.style.setProperty( 'animation', 'none', 'important' ); // Блокируем CSS анимацию
-			wrapper.style.setProperty( 'scroll-behavior', 'auto', 'important' );
-
-			// <--- NEW: Убираем <noscript> теги, чтобы не мешали ---
-			wrapper.querySelectorAll( 'noscript' ).forEach( ns => ns.remove() );
-
-			// Сначала очищаем старые клоны, чтобы в items попали только оригиналы
-			wrapper.querySelectorAll( '.scroller-clone' ).forEach( el => el.remove() );
-
-			const items = Array.from( wrapper.children );
-			if ( items.length === 0 ) return;
-
-			// Принудительно отключаем сжатие оригинальных элементов
-			items.forEach( item => item.style.flexShrink = '0' );
-
-			const processClone = ( clone ) => {
-				clone.style.flexShrink = '0';
-				const img = clone.querySelector( 'img' );
-				if ( img ) {
-					if ( img.dataset.src ) img.src = img.dataset.src;
-					if ( img.dataset.srcset ) img.srcset = img.dataset.srcset;
-					img.classList.remove( 'lazyload', 'lazyloading' );
-					img.classList.add( 'lazyloaded' );
+			// <--- NEW: Small helper function so as not to duplicate code ---
+			const processClone = (clone) => {
+				const img = clone.querySelector('img');
+				if (img) {
+					if (img.dataset.src) img.src = img.dataset.src;
+					if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+					img.classList.remove('lazyload', 'lazyloading');
+					img.classList.add('lazyloaded');
 				}
 			};
 
-			// Helper: точная ширина оригинального блока с учетом column-gap
-			const getUnitWidth = () => {
-				const style = getComputedStyle( wrapper );
-				const gap = parseFloat( style.columnGap ) || 0;
-				let sum = 0;
-				items.forEach( el => {
-					sum += el.offsetWidth;
-				} );
-				return sum + gap * items.length;
-			};
+			// === Add duplicates to the beginning and end (YOUR CODE) ===
+			const minWidthMultiplier = 40;
+			const containerWidth = scroller.offsetWidth;
+			let totalWidth = wrapper.scrollWidth;
 
-			// === Добавляем дубли в начало и конец ===
-			const containerWidth = scroller.offsetWidth || window.innerWidth;
+			while (totalWidth < containerWidth * minWidthMultiplier) {
+				items.forEach((item) => {
+					const cloneEnd = item.cloneNode(true);
+					cloneEnd.classList.add("scroller-clone");
+					processClone(cloneEnd); // <--- NEW: "Пробуждаем" клон для конца
+					wrapper.appendChild(cloneEnd);
 
-			// Сохраняем ширину оригинального контента (unit)
-			let unitWidth = getUnitWidth();
+					const cloneStart = item.cloneNode(true);
+					cloneStart.classList.add("scroller-clone");
+					processClone(cloneStart); // <--- NEW: "Пробуждаем" клон для начала
+					wrapper.insertBefore(cloneStart, wrapper.firstChild);
+				});
+				totalWidth = wrapper.scrollWidth;
+			}
 
-			if ( items.length > 0 ) {
-				// Один набор клонов в начало (нужен для бесшовности при x = -unit)
-				items.slice().reverse().forEach( ( item ) => {
-					const cloneStart = item.cloneNode( true );
-					cloneStart.classList.add( 'scroller-clone' );
-					processClone( cloneStart );
-					wrapper.insertBefore( cloneStart, wrapper.firstChild );
-				} );
+			// === Scroll animation (YOUR CODE) ===
+			let lastScrollTop = window.scrollY;
 
-				// Клонируем в конец, пока суммарная ширина не покроет нужный диапазон (2*unit + containerWidth)
-				let totalWidth = wrapper.scrollWidth;
-				const minTotalWidth = unitWidth * 2 + containerWidth;
-				const maxTotalWidth = Math.max( minTotalWidth, containerWidth * 5 ); // Защитный лимит
+			const offsetStart = wrapper.scrollWidth / 2;
+			let currentX = -offsetStart;
+			let targetX = -offsetStart;
 
-				if ( ! unitWidth || unitWidth < 5 ) {
-				} else {
-					let guard = 0;
-					let lastTotalWidth = totalWidth;
-					let clonesSetsAdded = 0;
-					const maxSets = 20; // Максимум 20 повторений набора элементов
+			const speedFactor = 0.3;
 
-					while ( totalWidth < minTotalWidth && totalWidth < maxTotalWidth ) {
-						if ( guard++ > 100 ) {
-							break;
+			window.addEventListener("scroll", () => {
+				const st = window.scrollY;
+				const delta = st - lastScrollTop;
+				targetX -= delta * speedFactor;
+				lastScrollTop = st;
+			});
+
+			gsap.ticker.add(() => {
+				currentX += (targetX - currentX) * 0.1;
+				gsap.set(wrapper, { x: currentX });
+			});
+		});
+	}
+
+	// gsap.registerPlugin(ScrollTrigger, ScrollSmoother); // Registration is now in app.js
+
+	// Using matchMedia to control logic
+	let mm = gsap.matchMedia();
+
+	// Adding a condition: what to do when the screen is GREATER than or equal to 768px (Desktop/Tablet)
+	// 768px is the standard breakpoint, you can choose your own
+	mm.add("(min-width: 768px)", () => {
+
+		// --- 1. Initialize ScrollSmoother (DESKTOP ONLY) ---
+		let smoother; // We declare the variable here so that it is available below
+		try {
+			smoother = ScrollSmoother.create({
+				wrapper: '#brxe-bpimyf',
+				content: '#brxe-hozihq',
+				smooth: 1.5,
+				effects: true,
+				normalizeScroll: true,
+				ignoreMobileResize: true
+			});
+
+		} catch (e) {
+			console.error("ScrollSmoother failed to initialize: ", e);
+		}
+
+
+		// --- 2. Parallax for CARDS (DESKTOP ONLY) ---
+		gsap.utils.toArray(".shop-content-item").forEach(item => {
+
+			const minMove = 30;
+			const maxMove = 120;
+			const magnitude = gsap.utils.random(minMove, maxMove);
+			const direction = Math.random() < 0.5 ? -1 : 1;
+			const randomY = magnitude * direction;
+
+
+			gsap.to(item, {
+				y: randomY,
+				ease: "none",
+				scrollTrigger: {
+					trigger: item,
+					start: "top bottom",
+					end: "bottom top",
+					scrub: true,
+					// If ScrollSmoother is active, it automatically uses its coordinates
+				}
+			});
+		});
+
+
+		// --- 3. Logic for displaying the form #brxe-pwzueh (DESKTOP ONLY) ---
+		const formElement = document.getElementById('brxe-pwzueh');
+
+		if (formElement) {
+			// IMPORTANT: When ScrollSmoother is initialized, it may reset the body/html styles.
+			// So a ScrollTrigger bound to document.body will work correctly inside Smoother.
+
+			gsap.set(formElement, { opacity: 0, display: 'none' });
+
+			ScrollTrigger.create({
+				trigger: document.body,
+				start: "top top",
+				end: "bottom bottom",
+
+				onUpdate: (self) => {
+					const scrollProgress = self.progress;
+					const isFormVisible = formElement.style.display !== 'none';
+
+					if (scrollProgress >= 0.9) {
+						if (!isFormVisible) {
+							gsap.fromTo(formElement,
+								{ opacity: 0, display: 'flex' },
+								{ opacity: 1, duration: 0.5, ease: "power2.out" }
+							);
 						}
-						if ( clonesSetsAdded >= maxSets ) {
-							break;
+					} else {
+						if (isFormVisible) {
+							gsap.to(formElement, {
+								opacity: 0,
+								duration: 0.3,
+								ease: "power2.in",
+								onComplete: () => formElement.style.display = 'none'
+							});
 						}
-
-						items.forEach( ( item ) => {
-							const cloneEnd = item.cloneNode( true );
-							cloneEnd.classList.add( 'scroller-clone' );
-							processClone( cloneEnd );
-							wrapper.appendChild( cloneEnd );
-						} );
-
-						clonesSetsAdded++;
-						const newTotal = wrapper.scrollWidth;
-						if ( newTotal <= lastTotalWidth ) {
-							break;
-						}
-						totalWidth = newTotal;
-						lastTotalWidth = newTotal;
 					}
 				}
-			}
+			});
+		}
 
-			// === Полностью переписанная анимация ===
-			let lastScrollTop = window.scrollY;
-			let unit = unitWidth;
-			let pos = 0;
-			let momentum = 0;
-			let currentVelocity = 1.0;
-			const baseSpeedPx = 1.0;
-			const speedFactor = 0.05; // Было 0.1, уменьшаем в 2 раза
-			const maxMomentum = 5.0;  // Максимальный добавочный импульс (примерно в 5 раз быстрее базы)
+		// ⚠️ Return (kill) for matchMedia
+		// This function will be executed when the screen size becomes LESS THAN 768px,
+		// clearing all ScrollTriggers and Smoother created above.
+		return () => {
+			if (smoother) smoother.kill();
+			// ScrollTriggers created inside mm.add(),
+			// are destroyed automatically, this is the beauty of GSAP.
+		}
+	});
 
-			const onScroll = () => {
-				const st = window.scrollY;
-				let delta = st - lastScrollTop;
-				lastScrollTop = st;
+	// (Optional) What to do on mobile (< 768px)
+	mm.add("(max-width: 767px)", () => {
+		// Here you can add mobile logic if needed
+		// For example, some light animations or just leave everything as it is (without scrollsmoozer)
 
-				const maxDelta = 80; // Снижаем максимальную дельту
-				if ( Math.abs( delta ) > maxDelta ) delta = maxDelta * Math.sign( delta );
+		// For the #brxe-pwzueh form, just make sure it is hidden or shown in the standard way,
+		// if you don't want to see it on mobile, you can just make sure its display: none in the CSS.
+		const formElement = document.getElementById('brxe-pwzueh');
+		if (formElement) {
+			// Remove styles that could have been applied by the desktop code (if it had had time to execute)
+			gsap.set(formElement, { clearProps: "all" });
+			formElement.style.display = 'none'; // If you need to be sure to hide
+		}
 
-				momentum += delta * speedFactor;
+		// The return function is not needed here, since we did not create anything that needs to be “kicked”
+	});
+}
 
-				// Ограничиваем импульс, чтобы карусель не улетала
-				if ( Math.abs( momentum ) > maxMomentum ) {
-					momentum = maxMomentum * Math.sign( momentum );
-				}
-			};
-			window.addEventListener( 'scroll', onScroll, { passive: true } );
-
-			const xSetter = gsap.quickSetter( wrapper, 'x', 'px' );
-
-			let docVisible = document.visibilityState === 'visible';
-			let inView = true;
-			const onVisibility = () => {
-				docVisible = document.visibilityState === 'visible';
-			};
-			document.addEventListener( 'visibilitychange', onVisibility );
-
-			const io = new IntersectionObserver( ( entries ) => {
-				entries.forEach( ( entry ) => {
-					if ( entry.target === scroller ) inView = entry.isIntersecting;
-				} );
-			} );
-			io.observe( scroller );
-
-			const update = () => {
-				if ( ! ( docVisible && inView ) ) return;
-				if ( ! unit ) {
-					unit = getUnitWidth();
-					console.log( 'Scroll: update unit width:', unit );
-					if ( ! unit ) return;
-				}
-				const dt = gsap.ticker.deltaRatio();
-
-				// Плавная интерполяция скорости
-				const targetVelocity = baseSpeedPx + momentum;
-				currentVelocity += ( targetVelocity - currentVelocity ) * 0.08 * dt; // Снижено с 0.1 до 0.08 для большей инерции и плавности
-
-				// Обновляем позицию (двигаемся влево, поэтому вычитаем)
-				pos += currentVelocity * dt;
-
-				// Зацикливание
-				if ( pos >= unit ) {
-					pos -= unit;
-				} else if ( pos < 0 ) {
-					pos += unit;
-				}
-
-				// x = -unit (начало оригинального блока) - pos
-				xSetter( -unit - pos );
-
-				// Декей импульса
-				momentum *= Math.pow( 0.85, dt ); // Более интенсивное затухание (было 0.9)
-			};
-
-			gsap.ticker.add( update );
-
-			// Runtime-пересчет, когда размеры контента меняются (картинки/шрифты)
-			const recalc = () => {
-				const newUnit = getUnitWidth();
-				if ( newUnit && Math.abs( newUnit - unit ) > 1 ) {
-					// Корректируем pos, чтобы избежать прыжка при изменении ширины
-					pos = mod( pos + ( unit - newUnit ), newUnit );
-					unit = newUnit;
-				}
-			};
-
-			const ro = new ResizeObserver( recalc );
-			try {
-				ro.observe( wrapper );
-			} catch ( e ) {
-			}
-			wrapper.querySelectorAll( 'img' ).forEach( img => {
-				if ( ! img.complete ) {
-					img.addEventListener( 'load', recalc, { once: true } );
-					if ( 'decode' in img ) img.decode().catch( () => {
-					} );
-				}
-			} );
-
-			// Пересчет при изменении размера окна
-			const onResize = () => {
-				recalc();
-			};
-			window.addEventListener( 'resize', onResize );
-
-			// Cleanup listeners and ticker on page hide
-			const cleanup = () => {
-				gsap.ticker.remove( update );
-				document.removeEventListener( 'visibilitychange', onVisibility );
-				try {
-					io.disconnect();
-				} catch ( e ) {
-				}
-				try {
-					ro.disconnect();
-				} catch ( e ) {
-				}
-				window.removeEventListener( 'scroll', onScroll );
-				window.removeEventListener( 'resize', onResize );
-			};
-			window.addEventListener( 'pagehide', cleanup, { once: true } );
-			window.addEventListener( 'beforeunload', cleanup, { once: true } );
-		} );
-	};
-
-	initScrollBasedScroller();
-};
-
-export default Scroll;
+export default Scroll

@@ -8,10 +8,7 @@
 namespace Iwpdev\Antara;
 
 use Bricks\Elements;
-use Iwpdev\Antara\Api\GeoIpApi;
-use Iwpdev\Antara\Modules\GeoContent;
 use WP_Post;
-use WP_HTML_Processor;
 
 /**
  * Main theme class.
@@ -20,19 +17,13 @@ class Main {
 	/**
 	 * Theme version.
 	 */
-	const THEME_VERSION = '1.2.18';
+	const THEME_VERSION = '1.0.6';
 
 	/**
 	 * Internal flag to avoid infinite loops while syncing WPML statuses.
 	 * @var bool
 	 */
 	private $wpml_sync_in_progress = false;
-
-	/**
-	 * Internal flag to avoid infinite loops while syncing Polylang statuses.
-	 * @var bool
-	 */
-	private $pll_sync_in_progress = false;
 
 	/**
 	 * Mail constructor.
@@ -47,8 +38,6 @@ class Main {
 	 * @return void
 	 */
 	private function init(): void {
-		new GeoContent();
-
 		add_action( 'wp_enqueue_scripts', [ $this, 'register_scripts_and_styles' ] );
 
 		// Register a dummy Klaviyo dependency early to avoid WP notice if plugin enqueues a script depending on it.
@@ -72,67 +61,15 @@ class Main {
 
 		// When an EN page/post is moved to draft, also draft all its translations (WPML).
 		add_action( 'transition_post_status', [ $this, 'sync_wpml_translations_to_draft' ], 10, 3 );
-		// Do the same for Polylang translations.
-		add_action( 'transition_post_status', [ $this, 'sync_pll_translations_to_draft' ], 10, 3 );
 
-		add_action( 'admin_post_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
-		add_action( 'admin_post_nopriv_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
-		add_action( 'wp_ajax_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
-		add_action( 'wp_ajax_nopriv_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
-		add_action( 'wp_ajax_get_location', [ $this, 'get_location' ] );
-		add_action( 'wp_ajax_nopriv_get_location', [ $this, 'get_location' ] );
-		add_filter( 'gform_next_button', [ $this, 'input_to_button' ], 10, 2 );
-		add_filter( 'gform_previous_button', [ $this, 'input_to_button' ], 10, 2 );
-		add_filter( 'gform_submit_button', [ $this, 'gf_add_custom_css_classes'], 10, 2 );
-		add_filter( 'gform_submit_button', [ $this, 'input_to_button' ], 10, 2 );
-	}
-
-	/**
-	 * Update submit buttons to be HTML button elements.
-	 *
-	 * @param string $button Button markup
-	 *
-	 * @return string the modified markup
-	 */
-	public function input_to_button( $button, $form ) {
-		$fragment = WP_HTML_Processor::create_fragment( $button );
-		$fragment->next_token();
-
-		$attributes = array( 'id', 'type', 'class', 'onclick' );
-			$data_attributes = $fragment->get_attribute_names_with_prefix( 'data-' );
-			if ( ! empty( $data_attributes ) ) {
-					$attributes = array_merge( $attributes, $data_attributes );
-			}
-
-			$new_attributes = array();
-			foreach ( $attributes as $attribute ) {
-					$value = $fragment->get_attribute( $attribute );
-					if ( ! empty( $value ) ) {
-							$new_attributes[] = sprintf( '%s="%s"', $attribute, esc_attr( $value ) );
-					}
-			}
-
-			return sprintf( '<div class="submit-button-wrapper"><button %s><i class="ti-email"></i><span>%s</span></button></div>', implode( ' ', $new_attributes ), esc_html( $fragment->get_attribute( 'value' ) ) );
-	}
-
-	/**
-	 * Add custom CSS classes to the Gravity Forms submit button
-	 *
-	 * @param string $button Button markup
-	 *
-	 * @return string the updated HTML;
-	 */
-	public function gf_add_custom_css_classes( $button ) {
-			$fragment = WP_HTML_Processor::create_fragment( $button );
-			$fragment->next_token();
-
-			$classes = [ 'bricks-button', 'bricks-background-primary', 'icon-left' ];
-
-			foreach ( $classes as $class ) {
-				$fragment->add_class( $class );
-			}
-
-			return $fragment->get_updated_html();
+		// Fix WPML language switcher URLs for Shop page when it is set as front page
+		add_filter( 'wpml_ls_filter_links', [ $this, 'fix_wpml_shop_front_page_urls' ], 10, 1 );
+		// Intercept URL generation per language in LS model
+		add_filter( 'wpml_ls_language_url', [ $this, 'fix_wpml_shop_front_page_language_url' ], 10, 2 );
+		// Also post-process final LS HTML to catch legacy/shortcode outputs
+		add_filter( 'wpml_ls_html', [ $this, 'fix_wpml_shop_front_page_ls_html' ], 10, 3 );
+		// Fix hreflang tags
+		add_filter( 'wpml_alternate_hreflang', [ $this, 'fix_wpml_shop_front_page_hreflang' ], 10, 2 );
 	}
 
 	/**
@@ -228,7 +165,6 @@ class Main {
 
 		$custom_elements = [
 				__DIR__ . '/Elements/FooterContacts.php',
-				__DIR__ . '/Elements/WelcomeModal.php',
 		];
 
 		foreach ( $custom_elements as $file ) {
@@ -271,29 +207,8 @@ class Main {
 				self::THEME_VERSION,
 				true
 		);
-		wp_enqueue_script(
-				'waypoints',
-				get_stylesheet_directory_uri() . '/assets/js/waypoints.min.js',
-				[
-						'jquery',
-						'bricks-scripts',
-				],
-				self::THEME_VERSION,
-				true
-		);
-
-		wp_localize_script(
-				'bricks-child-app',
-				'appData',
-				[
-						'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
-						'actionGeo' => GeoContent::GEO_CONTENT_ACTION_AND_NONCE,
-						'nonceGeo'  => wp_create_nonce( GeoContent::GEO_CONTENT_ACTION_AND_NONCE ),
-				]
-		);
 
 		wp_enqueue_style( 'bricks-child-style', get_stylesheet_directory_uri() . '/assets/css/app.css', [ 'bricks-frontend' ] );
-		wp_enqueue_style( 'animation-css', get_stylesheet_directory_uri() . '/assets/css/animation-css.css', [ 'bricks-frontend' ] );
 	}
 
 	/**
@@ -541,171 +456,212 @@ class Main {
 	}
 
 	/**
-	 * If the English version of the page/post is translated into a draft —
-	 * to draft all its translations (Polylang).
+	 * Fix WPML language switcher URLs when the Shop page is set as the Front Page.
+	 * Some languages translate the shop slug (e.g. "/winkel/") so we must detect
+	 * the actual translated Shop page URL per language and replace it with the
+	 * language home URL.
 	 *
-	 * @param string  $new_status New status.
-	 * @param string  $old_status Old status.
-	 * @param WP_Post $post       Record Object.
-	 *
-	 * @return void
+	 * @param array $links The language switcher links.
+	 * @return array
 	 */
-	public function sync_pll_translations_to_draft( $new_status, $old_status, $post ): void {
-		// Избегаем рекурсии
-		if ( $this->pll_sync_in_progress ) {
-			return;
+	public function fix_wpml_shop_front_page_urls( $links ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return $links;
 		}
 
-		// Реагируем только на переход в статус draft из иного статуса
-		if ( 'draft' !== $new_status || 'draft' === $old_status ) {
-			return;
+		$shop_page_id  = wc_get_page_id( 'shop' );
+		$front_page_id = (int) get_option( 'page_on_front' );
+
+		// Only act if the shop page is the front page
+		if ( $shop_page_id <= 0 || $shop_page_id !== $front_page_id ) {
+			return $links;
 		}
 
-		if ( ! $post instanceof WP_Post ) {
-			return;
-		}
-
-		// Игнорируем автосохранения и ревизии
-		if ( wp_is_post_autosave( $post->ID ) || wp_is_post_revision( $post->ID ) ) {
-			return;
-		}
-
-		$post_type = get_post_type( $post );
-		// Только для стандартных типов записей, как и в WPML-версии
-		if ( ! in_array( $post_type, [ 'post', 'page' ], true ) ) {
-			return;
-		}
-
-		// Убедимся, что Polylang активен
-		if ( ! function_exists( 'pll_get_post_language' ) || ! function_exists( 'pll_get_post_translations' ) ) {
-			return;
-		}
-
-		// Определяем язык исходной записи
-		$lang = pll_get_post_language( $post->ID, 'slug' );
-		if ( 'en' !== $lang ) {
-			return; // Срабатываем только для английского источника
-		}
-
-		$translations = pll_get_post_translations( $post->ID ); // [ lang => post_id ]
-		if ( empty( $translations ) || ! is_array( $translations ) ) {
-			return;
-		}
-
-		$this->pll_sync_in_progress = true;
-		foreach ( $translations as $lang_code => $translated_post_id ) {
-			$translated_post_id = (int) $translated_post_id;
-			if ( $translated_post_id === (int) $post->ID ) {
-				continue; // Пропускаем исходную EN-запись
+		foreach ( $links as $lang_code => &$link ) {
+			if ( empty( $link['url'] ) ) {
+				continue;
 			}
 
-			$current_status = get_post_status( $translated_post_id );
-			if ( 'draft' !== $current_status ) {
-				wp_update_post( [
-						'ID'          => $translated_post_id,
-						'post_status' => 'draft',
-				] );
+			// Try robust, language-aware comparison using the translated Shop page URL
+			$lang = isset( $link['code'] ) ? $link['code'] : ( is_string( $lang_code ) ? $lang_code : null );
+			if ( $lang ) {
+				$translated_shop_id = apply_filters( 'wpml_object_id', $shop_page_id, 'page', true, $lang );
+				if ( $translated_shop_id ) {
+					$translated_shop_url = trailingslashit( get_permalink( $translated_shop_id ) );
+					$current_url         = trailingslashit( $link['url'] );
+
+					if ( $current_url === $translated_shop_url ) {
+						$home_lang_url = trailingslashit( apply_filters( 'wpml_home_url', get_home_url(), $lang ) );
+						$link['url']   = $home_lang_url;
+						continue;
+					}
+				}
+			}
+
+			// Fallback: generic replacement for "/shop/" patterns
+			if ( strpos( $link['url'], '/shop/' ) !== false ) {
+				$link['url'] = str_replace( '/shop/', '/', $link['url'] );
+			} elseif ( substr( $link['url'], -5 ) === '/shop' ) {
+				$link['url'] = substr( $link['url'], 0, -4 );
 			}
 		}
-		$this->pll_sync_in_progress = false;
+
+		return $links;
 	}
 
 	/**
-	 * Welcome modal handler.
+	 * Fix hreflang tags for the Shop page when it's set as the Front Page.
+	 * Handle translated shop slugs per language (e.g. "/winkel/") and point to
+	 * the language home URL instead.
 	 *
-	 * @return void
+	 * @param string $url  The hreflang URL.
+	 * @param string $lang The language code.
+	 * @return string
 	 */
-	public static function welcome_modal_handler(): void {
-
-		// Verify nonce
-		if ( ! isset( $_POST['welcome_nonce'] ) || ! wp_verify_nonce( $_POST['welcome_nonce'], 'welcome_modal' ) ) {
-			wp_die( 'Security check failed' );
+	public function fix_wpml_shop_front_page_hreflang( $url, $lang ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return $url;
 		}
 
-		$location = isset( $_POST['location'] ) ? sanitize_text_field( $_POST['location'] ) : '';
-		$language = isset( $_POST['language'] ) ? sanitize_text_field( $_POST['language'] ) : '';
+		$shop_page_id  = wc_get_page_id( 'shop' );
+		$front_page_id = (int) get_option( 'page_on_front' );
 
-		// Map lag_ prefixes to actual Polylang language codes if necessary
-		$pll_lang = str_replace( 'lag_', '', $language );
-
-		// Set cookies (expire in 1 week)
-		$expire = time() + ( 7 * 24 * 60 * 60 );
-		setcookie( 'welcome-modal', 'true', $expire, COOKIEPATH, COOKIE_DOMAIN );
-		setcookie( 'pll_language', $pll_lang, $expire, COOKIEPATH, COOKIE_DOMAIN );
-		setcookie( 'location', $location, $expire, COOKIEPATH, COOKIE_DOMAIN );
-
-		// Also set location_name if we can find it
-		$locations = [
-			'es' => 'Barcelona, Spain',
-			'be' => 'Keerbergen, Belgium',
-		];
-		if ( isset( $locations[ $location ] ) ) {
-			setcookie( 'location_name', $locations[ $location ], $expire, COOKIEPATH, COOKIE_DOMAIN );
+		if ( $shop_page_id <= 0 || $shop_page_id !== $front_page_id ) {
+			return $url;
 		}
 
-		// Prevent caching
-		nocache_headers();
-		header( 'Cache-Control: no-cache, must-revalidate, max-age=0' );
-		header( 'Expires: Wed, 11 Jan 1984 05:00:00 GMT' );
-		header( 'Pragma: no-cache' );
+		// Compare against the translated Shop page permalink for this language
+		$translated_shop_id = apply_filters( 'wpml_object_id', $shop_page_id, 'page', true, $lang );
+		if ( $translated_shop_id ) {
+			$translated_shop_url = trailingslashit( get_permalink( $translated_shop_id ) );
+			$current_url         = trailingslashit( $url );
 
-		// Redirect to home page of the selected language
-		$redirect_url = home_url( '/' );
-		if ( function_exists( 'pll_home_url' ) ) {
-			$redirect_url = pll_home_url( $pll_lang );
+			if ( $current_url === $translated_shop_url ) {
+				return trailingslashit( apply_filters( 'wpml_home_url', get_home_url(), $lang ) );
+			}
 		}
 
-		// Try to redirect to the translated version of the current page
-		$referer = wp_get_referer();
-		if ( $referer ) {
-			$post_id = url_to_postid( $referer );
-			if ( $post_id && function_exists( 'pll_get_post' ) ) {
-				$translated_post_id = pll_get_post( $post_id, $pll_lang );
-				if ( $translated_post_id ) {
-					$redirect_url = get_permalink( $translated_post_id );
+		// Fallback: generic "/shop/" replacements
+		if ( strpos( $url, '/shop/' ) !== false ) {
+			return str_replace( '/shop/', '/', $url );
+		} elseif ( substr( $url, -5 ) === '/shop' ) {
+			return substr( $url, 0, -4 );
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Post-process WPML Language Switcher final HTML (legacy/shortcode outputs)
+	 * to replace links to the translated Shop page with the language root when
+	 * the Shop page is set as Front Page.
+	 *
+	 * @param string       $html  Final LS HTML
+	 * @param array        $model Model used to render (contains languages)
+	 * @param WPML_LS_Slot $slot  Slot configuration
+	 * @return string
+	 */
+	public function fix_wpml_shop_front_page_ls_html( $html, $model, $slot ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return $html;
+		}
+
+		$shop_page_id  = wc_get_page_id( 'shop' );
+		$front_page_id = (int) get_option( 'page_on_front' );
+		if ( $shop_page_id <= 0 || $shop_page_id !== $front_page_id ) {
+			return $html;
+		}
+
+		// Build a map of "shop URL in language" => "home URL in language"
+		$replacements = [];
+		if ( isset( $model['languages'] ) && is_array( $model['languages'] ) ) {
+			foreach ( $model['languages'] as $lang ) {
+				if ( empty( $lang['code'] ) ) {
+					continue;
+				}
+				$code = $lang['code'];
+				$translated_shop_id = apply_filters( 'wpml_object_id', $shop_page_id, 'page', true, $code );
+				if ( $translated_shop_id ) {
+					$shop_url  = trailingslashit( get_permalink( $translated_shop_id ) );
+					$home_url  = trailingslashit( apply_filters( 'wpml_home_url', get_home_url(), $code ) );
+					$replacements[ $shop_url ] = $home_url;
+					// Also consider non-trailing slash variant just in case
+					$replacements[ untrailingslashit( $shop_url ) ] = untrailingslashit( $home_url );
+				}
+
+				// Fallback for explicit "/shop/" in that language's link (rare if slug translated)
+				if ( ! empty( $lang['url'] ) && strpos( $lang['url'], '/shop/' ) !== false ) {
+					$replacements[ '/shop/' ] = '/';
 				}
 			}
 		}
 
-		// If AJAX, return JSON
-		if ( wp_doing_ajax() ) {
-			wp_send_json_success( [ 'redirect_url' => $redirect_url ] );
+		if ( empty( $replacements ) ) {
+			return $html;
 		}
 
-		wp_safe_redirect( $redirect_url, 302 );
-		echo '<script type="text/javascript">window.location.href="' . esc_url( $redirect_url ) . '";</script>';
-		echo '<noscript><meta http-equiv="refresh" content="0;url=' . esc_url( $redirect_url ) . '"></noscript>';
-		die();
+		// Replace only inside href attributes to be safer
+		foreach ( $replacements as $from => $to ) {
+			// Exact href="from"
+			$html = str_replace( 'href="' . esc_url( $from ) . '"', 'href="' . esc_url( $to ) . '"', $html );
+			// Non-escaped variant just in case
+			$html = str_replace( 'href="' . $from . '"', 'href="' . $to . '"', $html );
+		}
+
+		return $html;
 	}
 
 	/**
-	 * Get location Ajax.
+	 * Intercept per-language URL during LS model build and normalize Shop->Home
+	 * when Shop is set as the Front Page.
 	 *
-	 * @return void
+	 * @param string $url  Current language URL produced by WPML
+	 * @param array  $data Language data from WPML model (should include code/url)
+	 * @return string
 	 */
-	public function get_location(): void {
+	public function fix_wpml_shop_front_page_language_url( $url, $data ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return $url;
+		}
 
-		if ( ! empty( $_COOKIE['location'] ) ) {
-			$country = $_COOKIE['location'];
-		} else {
+		$shop_page_id = wc_get_page_id( 'shop' );
+		if ( $shop_page_id <= 0 ) {
+			return $url;
+		}
 
-			$geo_api = new GeoIpApi();
-			$ip      = $_SERVER['REMOTE_ADDR'] ?? $_SERVER['HTTP_X_REAL_IP'];
-			if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-				$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		// Determine language code
+		$lang = null;
+		if ( is_array( $data ) ) {
+			if ( ! empty( $data['language_code'] ) ) {
+				$lang = $data['language_code'];
+			} elseif ( ! empty( $data['code'] ) ) {
+				$lang = $data['code'];
 			}
-			$country = $geo_api->get_geo_info( $ip );
 		}
 
-
-		switch ( $country ) {
-			case 'es':
-				wp_send_json_success( [ 'location' => __( 'Barcelona, Spain', '' ) ] );
-				break;
-			default:
-				wp_send_json_success( [ 'location' => __( 'Keerbergen, Belgium', '' ) ] );
+		if ( ! $lang ) {
+			return $url;
 		}
+
+		$translated_shop_id = apply_filters( 'wpml_object_id', $shop_page_id, 'page', true, $lang );
+		if ( $translated_shop_id ) {
+			$translated_shop_url = trailingslashit( get_permalink( $translated_shop_id ) );
+			$current_url        = trailingslashit( $url );
+
+			if ( $current_url === $translated_shop_url ) {
+				return trailingslashit( apply_filters( 'wpml_home_url', get_home_url(), $lang ) );
+			}
+		}
+
+		// Fallback for explicit "/shop/" patterns
+		if ( strpos( $url, '/shop/' ) !== false ) {
+			return str_replace( '/shop/', '/', $url );
+		}
+		if ( substr( $url, -5 ) === '/shop' ) {
+			return substr( $url, 0, -4 );
+		}
+
+		return $url;
 	}
-
 
 }
