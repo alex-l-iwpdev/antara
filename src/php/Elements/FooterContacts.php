@@ -131,7 +131,11 @@ class FooterContacts extends Element {
 			echo '<div class="brxe-ewjegm brxe-div contacts-item">';
 
 			if ( ! empty( $link['url'] ) ) {
-				$link_key = 'link-' . ! empty( $item['id'] ) ? $item['id'] : '';
+				// We don't want to use set_link_attributes because it might add unwanted classes or IDs if not careful
+				// but it is the standard way in Bricks.
+				// To match the requested HTML exactly: <a class="brxe-ctsrko brxe-text-link footer-menu-link" href="..." target="_blank">
+
+				$link_key = 'link-' . $item['id'];
 
 				// Clear attributes for this key to prevent accumulation
 				$this->attributes[ $link_key ] = [];

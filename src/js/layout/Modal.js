@@ -4,8 +4,8 @@ const Modal = ( $ ) => {
 	if ( body && body.dataset.modalInitialized === 'true' ) return;
 	if ( body ) body.dataset.modalInitialized = 'true';
 
-	const locationHField = $( '#input_4_8' );
-	const langHField = $( '#input_4_9' );
+	const locationHField = $( '.form_first_step #input_4_8, .form_join #input_5_6' );
+	const langHField = $( '.form_first_step #input_4_9, .form_join #input_5_7' );
 
 	// Getting banner elements
 	const modalFormOne = document.querySelector( '.modal-form-one' );
