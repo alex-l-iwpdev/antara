@@ -6,6 +6,17 @@ const Header = ( $ ) => {
 
 	const menuBtn = document.querySelector( '.btn-menu' );
 	const header = document.querySelector( '.header' );
+	const subMenuIcon = $('.new-menu-wrapper .icon-plus');
+	subMenuIcon.click(function(){
+		if($(this).find('path:first').is(':visible')){
+			$(this).find('path:first').hide();
+			$(this).next().hide();
+		}else{
+			$(this).find('path:first').show();
+			$(this).next().show();
+		}
+		$(this).next().slideToggle();
+	})
 	if ( menuBtn ) {
 		const onMenuClick = function() {
 			this.classList.toggle( 'active' );
@@ -60,28 +71,6 @@ const Header = ( $ ) => {
 		} );
 		themeObserver.observe( banner );
 	}
-
-	// const onScroll = () => {
-	// 	const currentScrollY = window.scrollY;
-	// 	const scrollThreshold = window.innerHeight * 0.03;
-
-	// 	if ( currentScrollY < scrollThreshold ) {
-	// 		header.classList.remove( 'header-hidden' );
-	// 		lastScrollY = currentScrollY;
-	// 		return;
-	// 	}
-
-	// 	if ( Math.abs(currentScrollY - lastScrollY) < 5 ) return;
-
-	// 	if ( currentScrollY > lastScrollY ) {
-	// 		header.classList.add( 'header-hidden' );
-	// 	} else {
-	// 		header.classList.remove( 'header-hidden' );
-	// 	}
-	// 	lastScrollY = currentScrollY;
-	// };
-
-	// window.addEventListener( 'scroll', onScroll, { passive: true } );
 
 	window.addEventListener( 'pagehide', () => {
 		window.removeEventListener( 'resize', onResize );

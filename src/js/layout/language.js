@@ -9,36 +9,30 @@ const Language = ( $ ) => {
 			}
 		} );
 
-		// Create/get a span to display the current language next to the SVG
-		let displaySpan = $( '.Language-wrapper .current-lang-display' );
-		if ( ! displaySpan.length ) {
-			displaySpan = $( '<span class="current-lang-display"></span>' );
-			$( '.Language-wrapper svg' ).after( displaySpan );
-		}
+		// Create a span to display the current language next to the SVG if it doesn't exist
+		$( '.Language-wrapper' ).each( function() {
+			const $wrapper = $( this );
+			if ( ! $wrapper.find( '.current-lang-display' ).length ) {
+				const $span = $( '<span class="current-lang-display"></span>' );
+				$wrapper.find( 'svg' ).after( $span );
+			}
+		} );
 
 		let wasMobile = null;
 		const updateLanguageSwitcher = () => {
-			const isMobile = window.innerWidth < 768;
-			
-			// Only update DOM if the state changed (mobile <-> desktop)
-			if ( wasMobile === isMobile ) return;
-			wasMobile = isMobile;
-
 			switcher.find( 'a' ).each( function() {
 				const $a = $( this );
-				if ( isMobile ) {
-					const text = $a.attr( 'lang' )?.split( '-' )[ 0 ];
-					if ( text ) $a.text( text );
-				} else {
-					const originalText = $a.attr( 'data-original-text' );
-					if ( originalText ) $a.text( originalText );
-				}
+				const originalText = $a.attr( 'data-original-text' );
+				if ( originalText ) $a.text( originalText );
 			} );
 
-			const currentLang = $( '.current-lang' ).first().text();
-			if ( currentLang ) {
-				displaySpan.text( currentLang );
-			}
+			$( '.Language-wrapper' ).each( function() {
+				const $wrapper = $( this );
+				const currentLang = $wrapper.find( '.current-lang' ).first().text();
+				if ( currentLang ) {
+					$wrapper.find( '.current-lang-display' ).text( currentLang );
+				}
+			} );
 		};
 
 		// Run initially
