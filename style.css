@@ -1,7 +1,7 @@
 /*
 Theme Name: Bricks Child
 Template: bricks
-Version: 1.2.23
+Version: 1.2.24
 Author: ALex L I WP DEV
 Description: Child theme for bricks
 */
@@ -15,7 +15,9 @@ body {
 header {
 	z-index: 999999 !important;
 }
-
+body.home .header:not(.fixed) .header-right-wrapper .Language-wrapper .current-lang-display:after,
+header.active .header-right-wrapper .Language-wrapper .current-lang-display:after,
+body:not(.home) header.active .header-right-wrapper:after,
 header.active .header.fixed .header-right-wrapper::after,
 .home .header:not(.fixed) .header-right-wrapper::after,
 .home .header:not(.fixed) .header_logo,
@@ -27,7 +29,6 @@ header.active svg {
 	filter: brightness(0) saturate(100%) invert(100%) sepia(3%) saturate(12%) hue-rotate(350deg) brightness(104%) contrast(102%) !important;
 	font-weight: 400;
 }
-
 header.active .new-menu-wrapper {
 	transform: translateY(0%);
 }
@@ -53,6 +54,11 @@ header.active .new-menu-wrapper {
 	border-bottom: 1px solid #fff;
 }
 
+.location-wrapper .brxe-dropdown a{
+	color: #333 !important;
+	/*font-size: 16px;*/
+}
+
 
 .new-menu-wrapper .submenu-title {
 	font-weight: 400;
@@ -60,7 +66,7 @@ header.active .new-menu-wrapper {
 	line-height: 130%;
 	letter-spacing: -2%;
 	color: rgba(246, 240, 238, 0.6);
-	margin-bottom: 15px;
+	margin-bottom: 20px;
 }
 
 .header.fixed .btn-menu-line-bottom.brxe-div,
@@ -77,18 +83,21 @@ header.active .header .btn-menu-line-top.brxe-div {
 	color: #333;
 }
 
+.header-right-wrapper .audio-btn {
+    order: -1;
+}
 @media screen and (min-width: 1024px) {
 	.new-menu-wrapper .menu > .menu-item:hover > .brxe-div.sub-menu {
 		display: block;
 	}
 }
 
-.menu-item .sub-menu {
+.new-menu-wrapper .menu-item .sub-menu {
 	padding: 0 40px 0 70px;
-	display: none;
+	/*display: none;*/
 }
 
-.menu-item a.brxe-text-link {
+.new-menu-wrapper .menu-item a.brxe-text-link {
 	font-size: 40px;
 	line-height: 1;
 	letter-spacing: -2%;
@@ -101,11 +110,11 @@ header.active .header .btn-menu-line-top.brxe-div {
 	color: #F6F0EE;
 }
 
-.menu-item a.brxe-text-link:hover {
+.new-menu-wrapper .menu-item a.brxe-text-link:hover {
 	opacity: 1;
 }
 
-.menu-item a.brxe-text-link span {
+.new-menu-wrapper .menu-item a.brxe-text-link span {
 	font-weight: 400;
 	font-size: 15px;
 	line-height: 1;
@@ -115,18 +124,18 @@ header.active .header .btn-menu-line-top.brxe-div {
 	font-family: "Untitled Sans";
 }
 
-.menu-item .sub-menu .bricks-nav-menu {
+.new-menu-wrapper .menu-item .sub-menu .bricks-nav-menu {
 	display: flex;
 	flex-direction: column;
 	padding-left: 0;
-	margin-bottom: 35px;
+	margin-bottom: 50px;
 }
 
-.menu-item .sub-menu .bricks-nav-menu li {
+.new-menu-wrapper .menu-item .sub-menu .bricks-nav-menu li {
 	margin-left: 0;
 }
 
-.menu-item .sub-menu .bricks-nav-menu li a {
+.new-menu-wrapper .menu-item .sub-menu .bricks-nav-menu li a {
 	font-weight: 400;
 	font-size: 20px;
 	line-height: 180%;
@@ -143,31 +152,48 @@ header.active .header .btn-menu-line-top.brxe-div {
 .new-menu-wrapper .menu-footer {
 	display: none;
 }
-
+.header-right-wrapper .Language-wrapper .current-lang-display{
+	padding-right: 20px;
+	position: relative;
+}
+.header-right-wrapper .Language-wrapper .current-lang-display:after {
+	content: '' !important;
+	position: absolute !important;
+	width: 12px;
+	height: 9px;
+	display: inline-block !important;
+	background-image: url(/wp-content/uploads/2026/06/chevron-down.svg);
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	right: 0;
+	top: 50%;
+	transform: translatey(-50%);
+}
 @media screen and (max-width: 1919px) and (min-width: 1025px) {
 	.new-menu-wrapper {
 		padding: 130px 1.563vw 4.167vw;
 	}
 
-	.menu-item a.brxe-text-link {
+	.new-menu-wrapper .menu-item a.brxe-text-link {
 		font-size: 2.083vw;
 		gap: 1.042vw;
 		padding-bottom: 0.625vw;
 	}
 
-	.menu-item a.brxe-text-link span {
+	.new-menu-wrapper .menu-item a.brxe-text-link span {
 		font-size: 0.781vw;
 	}
 
-	.menu-item .sub-menu .bricks-nav-menu li a {
+	.new-menu-wrapper .menu-item .sub-menu .bricks-nav-menu li a {
 		font-size: 1.042vw;
 	}
 
-	.menu-item .sub-menu .bricks-nav-menu {
+	.new-menu-wrapper .menu-item .sub-menu .bricks-nav-menu {
 		margin-bottom: 1.823vw;
 	}
 
-	.menu-item .sub-menu {
+	.new-menu-wrapper .menu-item .sub-menu {
 		padding: 0 2.083vw 0 3.646vw;
 	}
 
@@ -234,11 +260,17 @@ header.active .header .btn-menu-line-top.brxe-div {
 }
 
 @media screen and (max-width: 767px) {
+	.menu-item .sub-menu {
+		display: none;
+	}
+
 	.new-menu-wrapper {
 		background: #333 !important;
 		padding: 100px 20px 40px;
-		max-height: 100lvh;
+		max-height: 100lvh !important;
+		max-height: 100dvh !important;
 		height: 100lvh !important;
+		height: 100dvh !important;
 	}
 
 	.new-menu-wrapper .menu-item a.brxe-text-link {
@@ -395,7 +427,6 @@ header.active .header .btn-menu-line-top.brxe-div {
 
 	.header-right-wrapper .Language-wrapper {
 		position: relative;
-		padding-right: 18px;
 	}
 
 	.header-right-wrapper {
@@ -409,12 +440,36 @@ header.active .header .btn-menu-line-top.brxe-div {
 		padding: 0;
 	}
 
-	.header-right-wrapper:after {
-		content: '';
+	.header-right-wrapper .current-lang-display {
+		font-size: 0 !important;
+	}
+	.header-right-wrapper .Language-wrapper .current-lang-display {
+		padding-right: 8px;
+	}
+	.new-menu-wrapper .Language-wrapper .current-lang-display{
+		position: relative;
+		padding-right: 16px;
+	}
+	.new-menu-wrapper .Language-wrapper .current-lang-display:after {
+        content: '';
+        position: absolute !important;
+        width: 9px;
+        height: 5px;
+        display: inline-block;
+        background-image: url(/wp-content/uploads/2026/06/chevron-down.svg);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        right: 0;
+        top: 50%;
+        transform: translatey(-50%);
+    }
+	.header-right-wrapper .Language-wrapper .current-lang-display:after {
+		content: '' !important;
 		position: absolute !important;
-		width: 12px;
-		height: 6px;
-		display: inline-block;
+		width: 9px;
+		height: 5px;
+		display: inline-block !important;
 		background-image: url(/wp-content/uploads/2026/06/chevron-down.svg);
 		background-size: contain;
 		background-repeat: no-repeat;
@@ -422,10 +477,6 @@ header.active .header .btn-menu-line-top.brxe-div {
 		right: 0;
 		top: 50%;
 		transform: translatey(-50%);
-	}
-
-	.header-right-wrapper .current-lang-display {
-		display: none !important;
 	}
 }
 
@@ -838,7 +889,7 @@ body {
 
 	.brx-submenu-toggle > span,
 	.brx-dropdown-content .brxe-text-link {
-		font-size: 20px !important;
+		font-size: 16px !important;
 	}
 
 	.brx-dropdown-content .menu-item {
