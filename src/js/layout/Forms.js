@@ -39,6 +39,9 @@ const Forms = ( $ ) => {
 			}
 		} );
 	}, { once: true } );
+	$('.footer-email').focus(function(){
+		$('.gfield--type-name').removeClass('name-hidden');
+	});
 };
 
 export default Forms;

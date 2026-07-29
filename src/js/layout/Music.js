@@ -4,9 +4,9 @@ const Music = ( $ ) => {
 	/* Global Wave Settings */
 	const CFG = {
 		POINTS: 25,
-		LEFT: 28,
-		RIGHT: 12,
-		VIEW: 80,
+		LEFT: 38,
+		RIGHT: 12, 
+		VIEW: 120,
 		BASE: 13,
 		AMP: 2,
 		FREQ: 0.4,

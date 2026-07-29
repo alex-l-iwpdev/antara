@@ -7,16 +7,99 @@ const Header = ( $ ) => {
 	const menuBtn = document.querySelector( '.btn-menu' );
 	const header = document.querySelector( '.header' );
 	const subMenuIcon = $('.new-menu-wrapper .icon-plus');
-	subMenuIcon.click(function(){
-		if($(this).find('path:first').is(':visible')){
-			$(this).find('path:first').hide();
-			$(this).next().hide();
-		}else{
-			$(this).find('path:first').show();
-			$(this).next().show();
+	const menuItem = $('.new-menu-wrapper .menu-item');
+	menuItem.hover(function(){
+		if (window.innerWidth <= 767) return;
+		const subMenu = $(this).find('.sub-menu');
+		$('.new-menu-wrapper .sub-menu').hide();
+		$('.new-menu-wrapper .icon-plus path:first').show();
+		if(subMenu.length){
+			subMenu.show();
+			$(this).find('.icon-plus path:first').hide();
 		}
-		$(this).next().slideToggle();
-	})
+	});
+
+	subMenuIcon.click(function(e){
+		e.preventDefault();
+		const subMenu = $(this).next('.sub-menu');
+		const verticalBar = $(this).find('path:first');
+		if (subMenu.is(':visible')) {
+			verticalBar.show();
+			subMenu.slideUp();
+		} else {
+			verticalBar.hide();
+			subMenu.slideDown();
+		}
+	});
+
+	// Add current-menu-item based on URL
+	const currentUrl = window.location.href.replace(/\/$/, "");
+	const currentPath = window.location.pathname;
+	const isHome = currentPath === '/' || currentPath === '/fr/' || currentPath === '/nl/' || currentPath === '/es/' || currentPath === '/ca/' || currentPath === '/index.php';
+
+	$('.new-menu-wrapper .current-menu-item').removeClass('current-menu-item');
+
+	// Always hide sub-menus and reset icons initially
+	$('.new-menu-wrapper .sub-menu').hide();
+	$('.new-menu-wrapper .icon-plus path:first').show();
+
+	// Small fix to ensure they stay hidden if somehow they were opened by CSS or other scripts
+	$('.new-menu-wrapper .sub-menu').css('display', 'none');
+
+	if (isHome) {
+		const firstMenuItem = $('.new-menu-wrapper .menu-item').first();
+		const firstSubMenu = firstMenuItem.find('.sub-menu');
+
+		// Add current-menu-item to the top-level item on home page
+		firstMenuItem.addClass('current-menu-item');
+
+		if (firstSubMenu.length) {
+			firstSubMenu.find('.menu-item').first().addClass('current-menu-item');
+			// Open on home page only for desktop
+			if (window.innerWidth > 767) {
+				firstSubMenu.css('display', 'block');
+				firstMenuItem.find('.icon-plus path:first').hide();
+			} else {
+				// Ensure it's hidden on mobile even if something else tried to show it
+				firstSubMenu.css('display', 'none');
+				firstMenuItem.find('.icon-plus path:first').show();
+			}
+		}
+	}
+
+	$('.new-menu-wrapper a').each(function() {
+		const href = $(this).attr('href');
+		if (href) {
+			const normalizedHref = href.replace(/\/$/, "");
+			if (normalizedHref === currentUrl) {
+				const parentMenuItem = $(this).closest('.menu-item');
+				parentMenuItem.addClass('current-menu-item');
+
+				// If we are inside a sub-menu, also add current-menu-item to the top-level parent
+				const closestSubMenu = $(this).closest('.sub-menu');
+				if (closestSubMenu.length) {
+					closestSubMenu.closest('.menu-item').addClass('current-menu-item');
+				}
+
+				// For desktop, if active item is inside a sub-menu, open it
+				if (window.innerWidth > 767) {
+					const closestSubMenu = $(this).closest('.sub-menu');
+					if (closestSubMenu.length) {
+						closestSubMenu.css('display', 'block');
+						closestSubMenu.closest('.menu-item').find('.icon-plus path:first').hide();
+					}
+				} else {
+					// Ensure hidden on mobile
+					const closestSubMenu = $(this).closest('.sub-menu');
+					if (closestSubMenu.length) {
+						closestSubMenu.css('display', 'none');
+						closestSubMenu.closest('.menu-item').find('.icon-plus path:first').show();
+					}
+				}
+			}
+		}
+	});
+
 	if ( menuBtn ) {
 		const onMenuClick = function() {
 			this.classList.toggle( 'active' );
