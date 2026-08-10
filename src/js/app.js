@@ -1,5 +1,6 @@
 //Libs
 import gsap from 'gsap';
+import 'selectric';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Flip } from 'gsap/Flip';
 

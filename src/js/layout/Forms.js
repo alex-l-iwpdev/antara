@@ -2,6 +2,7 @@ const Forms = ( $ ) => {
 	$('.footer-email').click(function(){
 		$('.gfield--type-name').removeClass('name-hidden'); 
 	});
+	console.log('[data-button_text]')
 	// Предотвращаем повторную инициализацию
 	const body = document.body;
 	if ( body && body.dataset.formsInitialized === 'true' ) return;
