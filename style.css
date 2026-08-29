@@ -37,6 +37,9 @@ header.active svg {
 	font-weight: 400;
 }
 
+.lang-item-ca{
+	display: none !important;
+}
 .home .header:not(.fixed) .location-wrapper {
 	color: #fff;
 }
@@ -739,7 +742,7 @@ section .brxe-dropdown:not(.no-animation):before,
 	filter: blur(10px) opacity(65%) !important;
 	-webkit-filter: blur(10px) opacity(65%) !important;
 	-moz-filter: blur(10px) opacity(65%) !important;
-	z-index: 0 !important;
+	z-index: -1 !important;
 	width: initial !important;
 	height: initial !important;
 	transform: none !important;
