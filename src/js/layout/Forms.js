@@ -2,7 +2,13 @@ const Forms = ( $ ) => {
 	$('.footer-email').click(function(){
 		$('.gfield--type-name').removeClass('name-hidden'); 
 	});
-	console.log('[data-button_text]')
+	
+	console.log($('[data-button_text]').attr("data-button_text"))
+	$('[data-button_text]').each(function(){
+		const textButton = $(this).attr("data-button_text");
+		$(this).find('.gform_button.button span').append(textButton);
+
+	});
 	// Предотвращаем повторную инициализацию
 	const body = document.body;
 	if ( body && body.dataset.formsInitialized === 'true' ) return;

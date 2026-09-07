@@ -1,7 +1,7 @@
 /*
 Theme Name: Bricks Child
 Template: bricks
-Version: 1.2.31
+Version: 1.2.32
 Author: ALex L I WP DEV
 Description: Child theme for bricks
 */
@@ -37,9 +37,6 @@ header.active svg {
 	font-weight: 400;
 }
 
-.lang-item-ca{
-	display: none !important;
-}
 .home .header:not(.fixed) .location-wrapper {
 	color: #fff;
 }
@@ -1405,7 +1402,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 
 .contact-form .select {
 	position: relative;
-	
+
 }
 .contact-form .selectric .label{
 	font-size: 1.146vw !important;
@@ -1461,7 +1458,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 .selectric-items li:hover,
 .selectric-items li.highlighted{
 	background-color: transparent !important;
-} 
+}
 .contact-form .selectric-items li {
 	font-weight: 400;
 	font-size: 1.042vw;
@@ -1524,7 +1521,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 	.contact-form .selectric,
 	.contact-form .textarea label,
 	.contact-form .gform_body .gform_fields legend,
-	.contact-form .gform_body .gform_fields .input label, 
+	.contact-form .gform_body .gform_fields .input label,
 	.contact-form .gform_body .gform_fields .input input {
 		font-size: 22px !important;
 	}
@@ -1534,7 +1531,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 	.contact-form .gform_body [class*="gfield--input-"].focus label {
 		font-size: 13px !important;
 	}
-	.gform_button.button span, 
+	.gform_button.button span,
 	.contact-form .selectric-items li {
 		font-size: 20px !important;
 	}
@@ -1610,7 +1607,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 		left: 20px !important;
 		top: 20px !important;
 	}
-	.gform_button.button span, 
+	.gform_button.button span,
 	.contact-form .selectric .label{
 		font-size: 16px !important;
 	}

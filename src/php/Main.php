@@ -20,7 +20,7 @@ class Main {
 	/**
 	 * Theme version.
 	 */
-	const THEME_VERSION = '1.2.31';
+	const THEME_VERSION = '1.2.37';
 
 	/**
 	 * Internal flag to avoid infinite loops while syncing WPML statuses.
@@ -272,6 +272,15 @@ class Main {
 				true
 		);
 		wp_enqueue_script(
+				'jquery-selectric',
+				get_stylesheet_directory_uri() . '/assets/js/jquery.selectric.js',
+				[
+						'jquery',
+				],
+				self::THEME_VERSION,
+				true
+		);
+		wp_enqueue_script(
 				'waypoints',
 				get_stylesheet_directory_uri() . '/assets/js/waypoints.min.js',
 				[
@@ -294,6 +303,7 @@ class Main {
 
 		wp_enqueue_style( 'bricks-child-style', get_stylesheet_directory_uri() . '/assets/css/app.css', [ 'bricks-frontend' ] );
 		wp_enqueue_style( 'animation-css', get_stylesheet_directory_uri() . '/assets/css/animation-css.css', [ 'bricks-frontend' ] );
+		wp_enqueue_style( 'jquery-selectric', get_stylesheet_directory_uri() . '/assets/css/selectric.css', [ 'bricks-frontend' ] );
 	}
 
 	/**
