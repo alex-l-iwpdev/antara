@@ -1,13 +1,16 @@
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
 const NewPage = ( $ ) => {
     $('.show-text').click(function(){
-        if($(this).parents('.card-description').hasClass('show')){
-            $(this).parents('.card-description').removeClass('show');
-            $(this).parents('.card-description').find('.fas').removeClass('fa-x').addClass('fa-arrow-right-long');
+        if($(this).parents('.card-item').hasClass('show')){
+            $(this).parents('.card-item').removeClass('show');
+            $(this).parents('.card-item').find('.fas').removeClass('fa-x').addClass('fa-arrow-right-long');
         }else{
-            $('.card-description').removeClass('show'); 
-            $('.card-description .fas').removeClass('fa-x').addClass('fa-arrow-right-long');
-            $(this).parents('.card-description').addClass('show');
-            $(this).parents('.card-description').find('.fas').removeClass('fa-arrow-right-long').addClass('fa-x');
+            $('.card-item').removeClass('show'); 
+            $('.card-item .fas').removeClass('fa-x').addClass('fa-arrow-right-long');
+            $(this).parents('.card-item').addClass('show');
+            $(this).parents('.card-item').find('.fas').removeClass('fa-arrow-right-long').addClass('fa-x');
         }
     });
     $('.read-more').click(function(){
@@ -17,17 +20,124 @@ const NewPage = ( $ ) => {
             $('.experience-item').removeClass('show'); 
             $(this).parents('.experience-item').addClass('show');
         }
+        setTimeout(() => {
+            ScrollTrigger.refresh();
+        }, 200);
     });
-    $('.read-more-text').click(function(){
-        $(this).prev().toggleClass('show-text-content');  
-        $(this).toggleClass('show-text');  
+
+    const initExperienceHorizontalScroll = () => {
+    const $sections = $('.experience-section');
+    if (!$sections.length) return;
+
+    $sections.each(function () {
+        const $section = $(this);
+        const $items = $section.find('.experience-items');
+        if (!$items.length) return;
+
+        const $cards = $items.find('.experience-item');
+        if (!$cards.length) return;
+
+        const cards = $cards.get(); // native elements for GSAP
+
+        const getScrollDistance = () => {
+            let totalChildrenWidth = 0;
+            const gap = parseFloat($items.css('gap')) || parseFloat($items.css('column-gap')) || 0;
+            
+            // Отступ справа только на экранах ≤ 767px
+            const rightPadding = window.innerWidth <= 767 ? 20 : 0;
+
+            $cards.each(function (index) {
+                totalChildrenWidth += this.offsetWidth;
+                if (index < $cards.length - 1) {
+                    totalChildrenWidth += gap;
+                }
+            });
+
+            // Добавляем отступ справа после последнего элемента (только на мобильных)
+            totalChildrenWidth += rightPadding;
+
+            const containerWidth = $items[0].clientWidth;
+            return Math.max(0, totalChildrenWidth - containerWidth);
+        };
+
+        if (getScrollDistance() <= 0) return;
+
+        const holdPx = window.innerHeight * 0.3;
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: $items[0],
+                pin: $section[0],
+                start: 'center center',
+                end: () => `+=${Math.max(getScrollDistance(), window.innerHeight * 0.7) + holdPx * 2}`,
+                scrub: 1,
+                invalidateOnRefresh: true,
+                anticipatePin: 1,
+            },
+        });
+
+        // Hold at start
+        tl.to(cards, { x: 0, duration: holdPx, ease: 'none' });
+
+        // Horizontal scroll
+        tl.to(cards, {
+            x: () => -getScrollDistance(),
+            duration: Math.max(getScrollDistance(), window.innerHeight * 0.7),
+            ease: 'none',
+        });
+
+        // Hold at end
+        tl.to(cards, {
+            x: () => -getScrollDistance(),
+            duration: holdPx,
+            ease: 'none',
+        });
+
+        // Refresh on image load
+        $section.find('img').each(function () {
+            if (!this.complete) {
+                $(this).one('load', () => ScrollTrigger.refresh());
+            }
+        });
     });
+};
+
+initExperienceHorizontalScroll();
+
+    const initChooseYourRoom = () => {
+        const chooseRoom = document.querySelector('.choose-your-room');
+        const sliderSection = document.querySelector('.slider-section');
+
+        if (!chooseRoom || !sliderSection) return;
+
+        gsap.set(chooseRoom, { autoAlpha: 0, pointerEvents: 'none' });
+
+        gsap.to(chooseRoom, {
+            autoAlpha: 1,
+            pointerEvents: 'auto',
+            duration: 0.35,
+            ease: 'power2.out',
+            scrollTrigger: {
+                trigger: sliderSection,
+                start: 'bottom bottom-=100px',
+                toggleActions: 'play none none reverse',
+                invalidateOnRefresh: true,
+            },
+        });
+    };
+
+    initChooseYourRoom();
     if($('.two-slide').length){
         var swiper = new Swiper('.two-slide', { 
             slidesPerView: 'auto',
             spaceBetween: 20,
+            speed: 1000,
             autoplay: {
                 delay: 4000,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                type: 'bullets',
             },
             navigation: {
             nextEl: '.swiper-button-next',
@@ -35,7 +145,7 @@ const NewPage = ( $ ) => {
             },
         });
     }
-    if($('.brxe-list.info,   .brxe-text.info').length){
+    if($('.brxe-list.info, .brxe-text.info').length){
         $('.brxe-list.info li:last .meta').append('<i class="fas fa-circle-info"></i>');
         $('.brxe-text.info').each(function(){ 
             $(this).find('p:last').append('<i class="fas fa-circle-info"></i>');
@@ -173,5 +283,18 @@ const NewPage = ( $ ) => {
             folder.removeClass('show');
         }
     }); 
+    // Questions items staggered animation
+    const questionsItems = document.querySelector('.questions-items');
+    if (questionsItems) {
+        ScrollTrigger.create({
+            trigger: questionsItems,
+            start: 'top 80%',
+            once: true,
+            onEnter: () => {
+                questionsItems.classList.add('animated');
+            },
+        });
+    }
 };
+
 export default NewPage;

@@ -1,7 +1,7 @@
 /*
 Theme Name: Bricks Child
 Template: bricks
-Version: 1.2.32
+Version: 1.2.42
 Author: ALex L I WP DEV
 Description: Child theme for bricks
 */
@@ -1672,4 +1672,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 		width: 12px !important;
 		height: 9px !important;
 	}
+}
+.brxe-polylang-language-switcher li.lang-item-ca{
+	display:none !important;
 }

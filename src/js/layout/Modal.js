@@ -27,24 +27,194 @@ const Modal = ( $ ) => {
 		}
 	};
 
+	const translateText = {
+		'en': {
+			'default': 'Read more',
+			'open': 'Read less',
+		},
+		'es': {
+			'default': 'Leer más',
+			'open': 'Leer menos',
+		},
+		'nl': {
+			'default': 'Lees meer',
+			'open': 'Lees minder',
+		},
+		'fr': {
+			'default': 'Lire plus',
+			'open': 'Lire moins',
+		}
+	};
+
+	const getLanguage = () => {
+		const cookieLang = getCookie( 'pll_language' );
+		if ( cookieLang && translateText[ cookieLang.toLowerCase() ] ) {
+			return cookieLang.toLowerCase();
+		}
+
+		const match = window.location.pathname.match( /^\/([a-z]{2})(\/|$)/i );
+		if ( match && translateText[ match[ 1 ].toLowerCase() ] ) {
+			return match[ 1 ].toLowerCase();
+		}
+
+		return 'en';
+	};
+
+	const updateElementText = ( $el, text ) => {
+		const $text = $el.find( '.text' );
+		if ( $text.length ) {
+			$text.text( text );
+			return;
+		}
+
+		const textNodes = $el.contents().filter( function() {
+			return this.nodeType === 3 && this.nodeValue.trim().length > 0;
+		} );
+
+		if ( textNodes.length ) {
+			textNodes.first().each( function() {
+				const hasLeadingSpace = /^\s/.test( this.nodeValue );
+				const hasTrailingSpace = /\s$/.test( this.nodeValue );
+				this.nodeValue = ( hasLeadingSpace ? ' ' : '' ) + text + ( hasTrailingSpace ? ' ' : '' );
+			} );
+			return;
+		}
+
+		const $span = $el.find( 'span' );
+		if ( $span.length ) {
+			$span.first().text( text );
+			return;
+		}
+
+		if ( ! $el.children().length ) {
+			$el.text( text );
+		}
+	};
+
+	const getElementText = ( $el ) => {
+		const $text = $el.find( '.text' );
+		if ( $text.length ) {
+			return $text.text().trim();
+		}
+
+		const textNodes = $el.contents().filter( function() {
+			return this.nodeType === 3 && this.nodeValue.trim().length > 0;
+		} );
+
+		if ( textNodes.length ) {
+			return textNodes.first().text().trim();
+		}
+
+		const $span = $el.find( 'span' );
+		if ( $span.length ) {
+			return $span.first().text().trim();
+		}
+
+		return $el.text().trim();
+	};
+
 	$( '.read-more' ).click( function( e ) {
 		e.preventDefault();
-		if ( $( this ).find( '.fas' ).hasClass( 'fa-plus' ) ) {
-			$( this ).find( '.fas' ).removeClass( 'fa-plus' ).addClass( 'fa-minus' );
-			$( this ).parent().parent().find( '.hidden-text' ).slideDown();
+		const currentLang = getLanguage();
+		const translations = translateText[ currentLang ] || translateText['nl'];
+		const $this = $( this );
+		const $hiddenText = $this.parent().parent().find( '.hidden-text' );
+		const $icon = $this.find( '.fas' );
+		const currentText = getElementText( $this );
+
+		const isOpenText = currentText && Object.values( translateText ).some( t => t.open.toLowerCase() === currentText.toLowerCase() );
+		const isOpen = ( $icon.length && $icon.hasClass( 'fa-minus' ) ) ||
+			$this.hasClass( 'open' ) ||
+			( $this.parents( '.experience-item' ).length && $this.parents( '.experience-item' ).hasClass( 'show' ) ) ||
+			isOpenText ||
+			( $hiddenText.length && $hiddenText.is( ':visible' ) );
+
+		const isOpening = ! isOpen;
+
+		if ( isOpening ) {
+			$this.addClass( 'open' );
+			$icon.removeClass( 'fa-plus' ).addClass( 'fa-minus' );
+			updateElementText( $this, translations.open );
+			if ( $hiddenText.length ) {
+				$hiddenText.slideDown();
+			}
+			if ( $this.parents( '.experience-item' ).length ) {
+				$( '.experience-item' ).not( $this.parents( '.experience-item' ) ).find( '.read-more' ).removeClass( 'open' ).each( function() {
+					updateElementText( $( this ), translations.default );
+				} );
+			}
 		} else {
-			$( this ).find( '.fas' ).removeClass( 'fa-minus' ).addClass( 'fa-plus' );
-			$( this ).parent().parent().find( '.hidden-text' ).slideUp();
+			$this.removeClass( 'open' );
+			$icon.removeClass( 'fa-minus' ).addClass( 'fa-plus' );
+			updateElementText( $this, translations.default );
+			if ( $hiddenText.length ) {
+				$hiddenText.slideUp();
+			}
 		}
 	} );
 	$( '.read-more-next' ).click( function( e ) {
 		e.preventDefault();
-		if ( $( this ).find( '.fas' ).hasClass( 'fa-plus' ) ) {
-			$( this ).find( '.fas' ).removeClass( 'fa-plus' ).addClass( 'fa-minus' );
-			$( this ).next().slideDown();
+		const currentLang = getLanguage();
+		const translations = translateText[ currentLang ] || translateText['nl'];
+		const $this = $( this );
+		const $hiddenText = $this.next();
+		const $icon = $this.find( '.fas' );
+		const currentText = getElementText( $this );
+
+		const isOpenText = currentText && Object.values( translateText ).some( t => t.open.toLowerCase() === currentText.toLowerCase() );
+		const isOpen = ( $icon.length && $icon.hasClass( 'fa-minus' ) ) ||
+			$this.hasClass( 'open' ) ||
+			isOpenText ||
+			( $hiddenText.length && $hiddenText.is( ':visible' ) );
+
+		const isOpening = ! isOpen;
+
+		if ( isOpening ) {
+			$this.addClass( 'open' );
+			$icon.removeClass( 'fa-plus' ).addClass( 'fa-minus' );
+			updateElementText( $this, translations.open );
+			if ( $hiddenText.length ) {
+				$hiddenText.slideDown();
+			}
 		} else {
-			$( this ).find( '.fas' ).removeClass( 'fa-minus' ).addClass( 'fa-plus' );
-			$( this ).next().slideUp();
+			$this.removeClass( 'open' );
+			$icon.removeClass( 'fa-minus' ).addClass( 'fa-plus' );
+			updateElementText( $this, translations.default );
+			if ( $hiddenText.length ) {
+				$hiddenText.slideUp();
+			}
+		}
+	} );
+	$( '.read-more-text' ).click( function( e ) {
+		e.preventDefault();
+		const currentLang = getLanguage();
+		const translations = translateText[ currentLang ] || translateText['nl'];
+		const $this = $( this );
+		const $hiddenContent = $this.prev();
+		const currentText = getElementText( $this );
+
+		const isOpenText = currentText && Object.values( translateText ).some( t => t.open.toLowerCase() === currentText.toLowerCase() );
+		const isOpen = $this.hasClass( 'show-text' ) ||
+			$this.hasClass( 'open' ) ||
+			$hiddenContent.hasClass( 'show-text-content' ) ||
+			isOpenText;
+
+		const isOpening = ! isOpen;
+
+		if ( isOpening ) {
+			$this.addClass( 'show-text open' );
+			$hiddenContent.addClass( 'show-text-content' );
+			updateElementText( $this, translations.open );
+		} else {
+			$this.removeClass( 'show-text open' );
+			$hiddenContent.removeClass( 'show-text-content' );
+			updateElementText( $this, translations.default );
+		}
+
+		if ( typeof ScrollTrigger !== 'undefined' ) {
+			setTimeout( () => {
+				ScrollTrigger.refresh();
+			}, 200 );
 		}
 	} );
 	// Flags
