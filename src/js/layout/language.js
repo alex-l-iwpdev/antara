@@ -40,6 +40,13 @@ const Language = ( $ ) => {
 
 		// Run on window resize
 		$( window ).on( 'resize', updateLanguageSwitcher );
+
+		// When user manually clicks a language switcher link, record manual preference
+		$( document ).on( 'click', '.brxe-polylang-language-switcher a, .Language-wrapper a', function() {
+			const date = new Date();
+			date.setTime( date.getTime() + ( 7 * 24 * 60 * 60 * 1000 ) ); // 7 days
+			document.cookie = `user_set_language=1; expires=${date.toUTCString()}; path=/`;
+		} );
 	}
 
 	const getCookie = ( name ) => {
@@ -55,20 +62,21 @@ const Language = ( $ ) => {
 		}
 	};
 
-	// Browser language detection and pll_language cookie setting
-	const supportedLanguages = ['fr', 'nl', 'es', 'en'];
-	const browserLang = navigator.language.split('-')[0];
-
-	if (supportedLanguages.includes(browserLang)) {
-		const pllCookie = getCookie('pll_language');
-		if (!pllCookie || pllCookie.trim() === '') {
-			const date = new Date();
-			date.setTime(date.getTime() + (7 * 24 * 60 * 60 * 1000)); // 7 days
-			document.cookie = `pll_language=${browserLang}; expires=${date.toUTCString()}; path=/`;
+	const getLanguage = () => {
+		const cookieLang = getCookie( 'pll_language' );
+		if ( cookieLang && [ 'es', 'en', 'nl', 'fr' ].includes( cookieLang.toLowerCase() ) ) {
+			return cookieLang.toLowerCase();
 		}
-	}
 
-	const lang = getCookie( 'pll_language' ) || 'nl';
+		const match = window.location.pathname.match( /^\/([a-z]{2})(\/|$)/i );
+		if ( match && [ 'es', 'en', 'nl', 'fr' ].includes( match[ 1 ].toLowerCase() ) ) {
+			return match[ 1 ].toLowerCase();
+		}
+
+		return 'en';
+	};
+
+	const lang = getLanguage();
 	const translateSrting = {
 		'es': { 'open': 'Leer más', 'close': 'Leer menos' },
 		'en': { 'open': 'Read more', 'close': 'Read less' },

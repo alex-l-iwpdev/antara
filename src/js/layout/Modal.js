@@ -316,119 +316,48 @@ const Modal = ( $ ) => {
 		}
 
 		$( '.location-wrapper .brx-submenu-toggle span' ).text( locationText );
+	} else {
+		// Fallback if cookie is not yet available on client side
+		$.ajax( {
+			type: 'POST',
+			url: appData.ajaxUrl,
+			data: { action: 'get_location' },
+			success: function( res ) {
+				if ( res.success && res.data && res.data.location ) {
+					$( '.location-wrapper .brx-submenu-toggle span' ).text( res.data.location );
+					if ( locationHField.length ) {
+						locationHField.val( res.data.location );
+					}
+				}
+			}
+		} );
 	}
 
-	$( '.location-wrapper .menu-item a' ).click( function( e ) {
+	$( document ).on( 'click', 'a[location], [location]', function( e ) {
 		e.preventDefault();
 
 		const location = $( this ).attr( 'location' );
-		const locationName = $( this ).find( 'span' ).length ? $( this ).find( 'span' ).text() : $( this ).text();
+		if ( ! location ) return;
+
+		const locationName = $( this ).find( 'span' ).length ? $( this ).find( 'span' ).text().trim() : $( this ).text().trim();
 
 		const date = new Date();
 		date.setTime( date.getTime() + ( 7 * 24 * 60 * 60 * 1000 ) ); // 7 days
-		document.cookie = `location=${location}; expires=${date.toUTCString()}; path=/`;
-		document.cookie = `location_name=${encodeURIComponent( locationName )}; expires=${date.toUTCString()}; path=/`;
+		const expires = '; expires=' + date.toUTCString() + '; path=/';
+
+		document.cookie = `location=${location}${expires}`;
+		document.cookie = `location_name=${encodeURIComponent( locationName )}${expires}`;
+		document.cookie = `user_set_location=1${expires}`;
+		document.cookie = `welcome-modal=true${expires}`;
 
 		document.location.reload();
 	} );
 
 	const welcomeModal = $( 'footer .brxe-welcome-modal' );
-	const geoContent = $( '.geo-content-shortcode' );
-	if ( welcomeModal.length && geoContent.length ) {
-		const modalFlag = getCookie( 'welcome-modal' );
-		const location = getCookie( 'location' );
-		if ( ! modalFlag || ! location ) {
-			welcomeModal.addClass( 'open' );
-			welcomeModal.find( '[name="location"], [name="language"]' ).change( function( e ) {
-				const $form = $( this ).closest( 'form' );
-				const $locationInputs = $form.find( 'input[name="location"]' );
-				const $languageInputs = $form.find( 'input[name="language"]' );
-
-				if ( $( this ).attr( 'name' ) === 'location' ) {
-					let location = $( this ).parent().find( 'label' ).text();
-					const date = new Date();
-					date.setTime( date.getTime() + ( 7 * 24 * 60 * 60 * 1000 ) ); // 7 days
-					document.cookie = `location_name=${encodeURIComponent( location )}; expires=${date.toUTCString()}; path=/`;
-				}
-
-				if ( $locationInputs.is( ':checked' ) && $languageInputs.is( ':checked' ) ) {
-					$form.submit();
-				}
-			} );
-
-			welcomeModal.find( '.location-language-form' ).submit( function( e ) {
-				e.preventDefault();
-
-				const $form = $( this );
-				const $locationInputs = $form.find( 'input[name="location"]' );
-				const $languageInputs = $form.find( 'input[name="language"]' );
-
-				$form.find( '.radio-button' ).removeClass( 'error' );
-
-				let hasError = false;
-
-				if ( ! $locationInputs.is( ':checked' ) ) {
-					$locationInputs.first().closest( '.radio-button' ).addClass( 'error' );
-					hasError = true;
-				}
-
-				if ( ! $languageInputs.is( ':checked' ) ) {
-					$languageInputs.first().closest( '.radio-button' ).addClass( 'error' );
-					hasError = true;
-				}
-
-				if ( hasError ) {
-					return false;
-				}
-
-				const $submitBtn = $form.find( 'button[type="submit"]' );
-				const data = $form.serialize();
-
-				$submitBtn.prop( 'disabled', true ).css( 'opacity', '0.5' );
-
-				$.ajax( {
-					type: 'POST',
-					url: appData.ajaxUrl,
-					data: data,
-					success: function( res ) {
-						if ( res.success && res.data.redirect_url ) {
-							window.location.href = res.data.redirect_url;
-						} else {
-							// Fallback if something went wrong
-							$form.off( 'submit' ).submit();
-						}
-					},
-					error: function( xhr ) {
-						console.log( 'error...', xhr );
-						// Fallback to standard form submission on error
-						$form.off( 'submit' ).submit();
-					}
-				} );
-			} );
-		}
-
+	if ( welcomeModal.length ) {
 		welcomeModal.find( '.icon-close' ).click( function( e ) {
 			e.preventDefault();
 			welcomeModal.removeClass( 'open' );
-
-			const data = {
-				action: 'get_location',
-			};
-
-			$.ajax( {
-				type: 'POST',
-				url: appData.ajaxUrl,
-				data: data,
-				success: function( res ) {
-					if ( res.success ) {
-						$( '.location-wrapper .brx-submenu-toggle span' ).text( res.data.location );
-					}
-				},
-				error: function( xhr ) {
-					console.log( 'error...', xhr );
-					//error logging
-				}
-			} );
 		} );
 	}
 };

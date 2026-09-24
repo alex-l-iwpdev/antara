@@ -20,7 +20,7 @@ class Main {
 	/**
 	 * Theme version.
 	 */
-	const THEME_VERSION = '1.2.42';
+	const THEME_VERSION = '1.3.2';
 
 	/**
 	 * Internal flag to avoid infinite loops while syncing WPML statuses.
@@ -74,6 +74,8 @@ class Main {
 		add_action( 'transition_post_status', [ $this, 'sync_wpml_translations_to_draft' ], 10, 3 );
 		// Do the same for Polylang translations.
 		add_action( 'transition_post_status', [ $this, 'sync_pll_translations_to_draft' ], 10, 3 );
+
+		add_action( 'template_redirect', [ $this, 'auto_detect_geo_and_language' ], 1 );
 
 		add_action( 'admin_post_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
 		add_action( 'admin_post_nopriv_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
@@ -621,6 +623,139 @@ class Main {
 	}
 
 	/**
+	 * Automatically detect user's geo location and language on first visit based on IP.
+	 *
+	 * @return void
+	 */
+	public function auto_detect_geo_and_language(): void {
+		// Skip for admin, ajax, cron, REST API, CLI, or non-GET requests
+		if ( is_admin() || wp_doing_ajax() || wp_doing_cron() ) {
+			return;
+		}
+
+		if ( defined( 'REST_REQUEST' ) && constant( 'REST_REQUEST' ) ) {
+			return;
+		}
+
+		if ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) {
+			return;
+		}
+
+		if ( function_exists( 'bricks_is_builder_main' ) && bricks_is_builder_main() ) {
+			return;
+		}
+
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' !== $_SERVER['REQUEST_METHOD'] ) {
+			return;
+		}
+
+		$geo_api = new GeoIpApi();
+		$ip      = GeoIpApi::get_client_ip();
+
+		$last_ip           = ! empty( $_COOKIE['geo_client_ip'] ) ? sanitize_text_field( wp_unslash( $_COOKIE['geo_client_ip'] ) ) : '';
+		$user_set_location = ! empty( $_COOKIE['user_set_location'] );
+		$user_set_language = ! empty( $_COOKIE['user_set_language'] );
+
+		// If user has already visited with the same IP and has completed initialization, don't re-run redirects
+		if ( ! empty( $last_ip ) && $last_ip === $ip && ! empty( $_COOKIE['welcome-modal'] ) ) {
+			return;
+		}
+
+		$country = $geo_api->get_country_by_ip( $ip );
+
+		$settings        = GeoIpApi::map_country_to_settings( $country );
+		$target_lang     = $settings['language'];
+		$target_loc      = $settings['location'];
+		$target_loc_name = $settings['location_name'];
+
+		// If user manually chose a location, preserve it
+		if ( $user_set_location && ! empty( $_COOKIE['location'] ) ) {
+			$target_loc = sanitize_text_field( wp_unslash( $_COOKIE['location'] ) );
+			$locations  = [
+				'es' => 'Barcelona, Spain',
+				'be' => 'Keerbergen, Belgium',
+			];
+			if ( isset( $locations[ $target_loc ] ) ) {
+				$target_loc_name = $locations[ $target_loc ];
+			}
+		}
+
+		// If user manually chose language, preserve it
+		if ( $user_set_language && ! empty( $_COOKIE['pll_language'] ) ) {
+			$target_lang = sanitize_text_field( wp_unslash( $_COOKIE['pll_language'] ) );
+		}
+
+		// Set cookies for 7 days
+		$day_sec       = defined( 'DAY_IN_SECONDS' ) ? constant( 'DAY_IN_SECONDS' ) : 86400;
+		$expire        = time() + ( 7 * $day_sec );
+		$cookie_path   = defined( 'COOKIEPATH' ) ? COOKIEPATH : '/';
+		$cookie_domain = defined( 'COOKIE_DOMAIN' ) ? COOKIE_DOMAIN : '';
+
+		setcookie( 'welcome-modal', 'true', $expire, $cookie_path, $cookie_domain );
+		setcookie( 'geo_client_ip', $ip, $expire, $cookie_path, $cookie_domain );
+		setcookie( 'pll_language', $target_lang, $expire, $cookie_path, $cookie_domain );
+		setcookie( 'location', $target_loc, $expire, $cookie_path, $cookie_domain );
+		setcookie( 'location_name', $target_loc_name, $expire, $cookie_path, $cookie_domain );
+
+		$_COOKIE['welcome-modal'] = 'true';
+		$_COOKIE['geo_client_ip'] = $ip;
+		$_COOKIE['pll_language']  = $target_lang;
+		$_COOKIE['location']      = $target_loc;
+		$_COOKIE['location_name']  = $target_loc_name;
+
+		// If user manually selected their language preference, do not auto-redirect
+		if ( $user_set_language ) {
+			return;
+		}
+
+		// Check current page language
+		$current_lang = '';
+		if ( function_exists( 'pll_current_language' ) ) {
+			$current_lang = pll_current_language();
+		}
+
+		if ( empty( $current_lang ) ) {
+			$req_uri = $_SERVER['REQUEST_URI'] ?? '/';
+			if ( preg_match( '#^/([a-z]{2})(/|$)#i', $req_uri, $matches ) ) {
+				$current_lang = strtolower( $matches[1] );
+			} else {
+				$current_lang = 'en';
+			}
+		}
+
+		// If current language is already target language, no redirection needed
+		if ( $current_lang === $target_lang ) {
+			return;
+		}
+
+		// Calculate redirection URL to the translated version
+		$redirect_url = '';
+		$post_id      = get_queried_object_id();
+
+		if ( $post_id && function_exists( 'pll_get_post' ) ) {
+			$translated_post_id = pll_get_post( $post_id, $target_lang );
+			if ( $translated_post_id ) {
+				$redirect_url = get_permalink( $translated_post_id );
+			}
+		}
+
+		if ( empty( $redirect_url ) && function_exists( 'pll_home_url' ) ) {
+			$redirect_url = pll_home_url( $target_lang );
+		}
+
+		if ( empty( $redirect_url ) ) {
+			$redirect_url = home_url( '/' . ( 'en' === $target_lang ? '' : $target_lang . '/' ) );
+		}
+
+		if ( ! empty( $redirect_url ) ) {
+			nocache_headers();
+			header( 'Cache-Control: no-cache, must-revalidate, max-age=0' );
+			wp_safe_redirect( $redirect_url, 302 );
+			exit;
+		}
+	}
+
+	/**
 	 * Welcome modal handler.
 	 *
 	 * @return void
@@ -696,24 +831,21 @@ class Main {
 	public function get_location(): void {
 
 		if ( ! empty( $_COOKIE['location'] ) ) {
-			$country = $_COOKIE['location'];
+			$country = sanitize_text_field( wp_unslash( $_COOKIE['location'] ) );
 		} else {
-
 			$geo_api = new GeoIpApi();
-			$ip      = $_SERVER['REMOTE_ADDR'] ?? $_SERVER['HTTP_X_REAL_IP'];
-			if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-				$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-			}
+			$ip      = GeoIpApi::get_client_ip();
 			$country = $geo_api->get_geo_info( $ip );
 		}
 
+		$country = strtolower( $country ?: 'be' );
 
 		switch ( $country ) {
 			case 'es':
-				wp_send_json_success( [ 'location' => __( 'Barcelona, Spain', '' ) ] );
+				wp_send_json_success( [ 'location' => __( 'Barcelona, Spain', 'bricks' ) ] );
 				break;
 			default:
-				wp_send_json_success( [ 'location' => __( 'Keerbergen, Belgium', '' ) ] );
+				wp_send_json_success( [ 'location' => __( 'Keerbergen, Belgium', 'bricks' ) ] );
 		}
 	}
 

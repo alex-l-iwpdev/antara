@@ -98,13 +98,17 @@ class GeoContent {
 		}
 
 		$geo_api = new GeoIpApi();
-		$ip      = $_SERVER['REMOTE_ADDR'] ?? $_SERVER['HTTP_X_REAL_IP'];
-		if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-			$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-		}
+		$ip      = GeoIpApi::get_client_ip();
 
 		$country       = $geo_api->get_geo_info( $ip );
-		$country       = strtoupper( $country ?: 'default' );
+		$country       = strtoupper( $country ?: 'DEFAULT' );
+		$country_aliases = [
+			'ES' => [ 'ES', 'SPAIN', 'ESPANA', 'ESPAÑA' ],
+			'BE' => [ 'BE', 'BELGIUM', 'BELGIQUE', 'BELGIE' ],
+			'NL' => [ 'NL', 'NETHERLANDS', 'NEDERLAND' ],
+			'FR' => [ 'FR', 'FRANCE' ],
+		];
+
 		$content_array = [];
 		foreach ( $ids as $id ) {
 			$content = get_fields( $id, 'geo_content' );
@@ -120,15 +124,20 @@ class GeoContent {
 
 				foreach ( $content as $item ) {
 
-					$item_country = $item['country'];
-					$item_content = ( ! empty( $item['code'] ) && ! empty( $item['code_content'] ) ) ? $item['code_content'] : $item['content'];
+					$item_country = strtoupper( trim( $item['country'] ?? '' ) );
+					$item_content = ( ! empty( $item['code'] ) && ! empty( $item['code_content'] ) ) ? $item['code_content'] : ( $item['content'] ?? '' );
 
-					if ( $item_country === $country ) {
+					$is_match = ( $item_country === $country );
+					if ( ! $is_match && isset( $country_aliases[ $country ] ) && in_array( $item_country, $country_aliases[ $country ], true ) ) {
+						$is_match = true;
+					}
+
+					if ( $is_match ) {
 						$matched_content = $item_content;
 						break;
 					}
 
-					if ( $item_country === 'default' ) {
+					if ( 'DEFAULT' === $item_country ) {
 						$default_content = $item_content;
 					}
 
