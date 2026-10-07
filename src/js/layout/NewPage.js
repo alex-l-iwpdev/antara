@@ -3,6 +3,24 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Swiper from 'swiper/bundle';
 
 const NewPage = ( $ ) => {
+    $('.dropdown-button .button').on('click', function(e){
+        e.preventDefault();
+        const $hidden = $(this).closest('.dropdown-button').find('.hidden');
+        $('.dropdown-button .hidden').not($hidden).removeClass('open');
+        $hidden.toggleClass('open'); 
+    });
+
+    $(document).on('click', function(e){
+        if (!$(e.target).closest('.dropdown-button').length) {
+            $('.dropdown-button .hidden').removeClass('open');
+        }
+    });
+
+    $(document).on('keydown', function(e){
+        if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+            $('.dropdown-button .hidden').removeClass('open');
+        }
+    });
     $('.show-text').click(function(){
         if($(this).parents('.card-item').hasClass('show')){
             $(this).parents('.card-item').removeClass('show');
@@ -111,13 +129,14 @@ const NewPage = ( $ ) => {
             };
 
             const holdPx = () => window.innerHeight * 0.3;
+            const isScrollSlider = $section.hasClass('scroll-slider-section');
 
             const tl = gsap.timeline({
                 scrollTrigger: {
-                    trigger: $items[0],
+                    trigger: isScrollSlider ? $section[0] : $items[0],
                     pin: $section[0],
-                    start: 'center center',
-                    end: () => `+=${Math.max(getScrollDistance(), window.innerHeight * 0.7) + holdPx() * 2}`,
+                    start: () => (isScrollSlider && window.innerWidth > 767 ? 'bottom bottom' : 'center center'),
+                    end: () => `+=${Math.max(getScrollDistance(), window.innerHeight * 0.7) + holdPx() * 2}`, 
                     scrub: 1,
                     invalidateOnRefresh: true,
                     anticipatePin: 1,
