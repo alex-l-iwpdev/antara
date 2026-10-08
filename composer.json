@@ -20,17 +20,21 @@
     "config": {
         "platform": {
             "php": "8.1"
+        },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "minimum-stability": "dev",
     "require": {
+        "facebook/php-business-sdk": "^8.0.3"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
         "squizlabs/php_codesniffer": "^3.5",
         "phpcompatibility/php-compatibility": "^9.3",
         "phpcompatibility/phpcompatibility-wp": "^2.1",
-        "wp-coding-standards/wpcs": "^2.3",
+        "wp-coding-standards/wpcs": "^3.0",
         "php-coveralls/php-coveralls": "^2.4"
     },
     "scripts": {
