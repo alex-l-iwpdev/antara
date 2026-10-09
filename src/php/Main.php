@@ -78,7 +78,7 @@ class Main {
 		add_action( 'transition_post_status', [ $this, 'sync_pll_translations_to_draft' ], 10, 3 );
 
 		add_action( 'template_redirect', [ $this, 'auto_detect_geo_and_language' ], 1 );
-		add_action( 'wp_head', [ $this, 'add_meta_pixel' ] );
+//		add_action( 'wp_head', [ $this, 'add_meta_pixel' ] );
 
 		add_action( 'admin_post_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
 		add_action( 'admin_post_nopriv_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );

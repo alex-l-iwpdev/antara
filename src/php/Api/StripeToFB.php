@@ -142,14 +142,17 @@ class StripeToFB {
 
 			Api::init( null, null, $access_token );
 
+			// Extract test event code if provided in query/body or defined constant
+			$test_code = $request->get_param( 'test_event_code' ) ?: ( defined( 'FB_TEST_EVENT_CODE' ) ? constant( 'FB_TEST_EVENT_CODE' ) : null );
+
 			// 1. Prepare User Data
 			$user_data = $this->build_user_data( $object, $request );
 
 			// 2. Prepare Custom Data & Content (Purchase)
 			list( $custom_data, $order_id, $amount, $currency ) = $this->build_custom_data( $object );
 
-			// 3. Prepare Event
-			$event_time = ! empty( $object['created'] ) ? (int) $object['created'] : time();
+			// 3. Prepare Event (If testing or created timestamp is missing, use current time so FB Test Events displays it)
+			$event_time = ! empty( $test_code ) ? time() : ( ! empty( $object['created'] ) ? (int) $object['created'] : time() );
 			$event_url  = home_url( '/facebook-conversions/payment' );
 
 			$event = ( new Event() )
@@ -164,8 +167,6 @@ class StripeToFB {
 			$event_request = ( new EventRequest( $pixel_id ) )
 				->setEvents( [ $event ] );
 
-			// Support test event code if provided in query/body or defined constant
-			$test_code = $request->get_param( 'test_event_code' ) ?: ( defined( 'FB_TEST_EVENT_CODE' ) ? constant( 'FB_TEST_EVENT_CODE' ) : null );
 			if ( ! empty( $test_code ) ) {
 				$event_request->setTestEventCode( (string) $test_code );
 			}
@@ -174,12 +175,15 @@ class StripeToFB {
 
 			return new WP_REST_Response(
 				[
-					'success'     => true,
-					'message'     => 'Purchase event successfully sent to Facebook Conversions API.',
-					'order_id'    => $order_id,
-					'amount'      => $amount,
-					'currency'    => $currency,
-					'fb_response' => $this->format_fb_response( $fb_response ),
+					'success'         => true,
+					'message'         => 'Purchase event successfully sent to Facebook Conversions API.',
+					'pixel_id'        => $pixel_id,
+					'test_event_code' => $test_code,
+					'event_time'      => $event_time,
+					'order_id'        => $order_id,
+					'amount'          => $amount,
+					'currency'        => $currency,
+					'fb_response'     => $this->format_fb_response( $fb_response ),
 				],
 				200
 			);
@@ -278,7 +282,7 @@ class StripeToFB {
 
 		$postal_code = $address['postal_code'] ?? '';
 		if ( ! empty( $postal_code ) ) {
-			$user_data->setZip( strtolower( trim( (string) $postal_code ) ) );
+			$user_data->setZipCode( strtolower( trim( (string) $postal_code ) ) );
 		}
 
 		// Client IP and User Agent

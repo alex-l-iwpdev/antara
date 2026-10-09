@@ -66,12 +66,15 @@ try {
 		->setUserData($user_data)
 		->setCustomData($custom_data);
 
-	$request = (new EventRequest('813266761061472'))
+	$pixel_id = defined( 'FB_PIXEL_ID' ) ? constant( 'FB_PIXEL_ID' ) : '2103479450530794';
+
+	$request = (new EventRequest($pixel_id))
 		->setEvents([$event]);
 
-	// Если нужно протестировать в реальном времени во вкладке Events Manager -> Test Events:
-	// скопируйте код вида TEST12345 во вкладке "Тестирование событий" и раскомментируйте строку ниже:
-//	 $request->setTestEventCode('TEST12995');
+	$test_code = defined( 'FB_TEST_EVENT_CODE' ) ? constant( 'FB_TEST_EVENT_CODE' ) : null;
+	if ( ! empty( $test_code ) ) {
+		$request->setTestEventCode( (string) $test_code );
+	}
 
 	$response = $request->execute();
 
