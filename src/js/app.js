@@ -29,8 +29,9 @@ import SwiperSliders from './layout/SwiperSliders.js';
 import Tabs from './layout/Tabs.js';
 import Modal from './layout/Modal.js';
 import GeoContent from './layout/GeoContent.js';
-import Video from './layout/Video.js'; 
-import NewPage from './layout/NewPage.js';  
+import Video from './layout/Video.js';
+import NewPage from './layout/NewPage.js';
+import FbEvents from './layout/FbEvents.js';
 
 ( ( $ ) => {
 	$( () => {
@@ -52,6 +53,7 @@ import NewPage from './layout/NewPage.js';
 			{ name: 'GeoContent', fn: GeoContent },
 			{ name: 'Video', fn: Video },
 			{ name: 'NewPage', fn: NewPage },
+			{ name: 'FbEvents', fn: FbEvents },
 		];
 
 		const initModule = ( m ) => {

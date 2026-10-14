@@ -360,13 +360,6 @@ const Modal = ( $ ) => {
 			welcomeModal.removeClass( 'open' );
 		} );
 	}
-
-	const contact_btn = $( '.contact_btn' );
-	if ( contact_btn.length ) {
-		contact_btn.click( function() {
-			fbq( 'track', 'Contact' );
-		} );
-	}
 };
 
 export default Modal;
