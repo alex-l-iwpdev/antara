@@ -10,6 +10,7 @@ namespace Iwpdev\Antara;
 use Bricks\Elements;
 use Iwpdev\Antara\Api\GeoIpApi;
 use Iwpdev\Antara\Api\StripeToFB;
+use Iwpdev\Antara\Api\CalToFB;
 use Iwpdev\Antara\Modules\GeoContent;
 use WP_Post;
 use WP_HTML_Processor;
@@ -50,6 +51,7 @@ class Main {
 	private function init(): void {
 		new GeoContent();
 		new StripeToFB();
+		new CalToFB();
 
 		add_action( 'wp_enqueue_scripts', [ $this, 'register_scripts_and_styles' ] );
 

@@ -351,7 +351,7 @@ class StripeToFB {
 	 *
 	 * @return array
 	 */
-	private function format_fb_response( $response ): array {
+	protected function format_fb_response( $response ): array {
 		if ( is_array( $response ) ) {
 			return $response;
 		}
