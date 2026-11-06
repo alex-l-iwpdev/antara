@@ -80,7 +80,6 @@ class Main {
 		add_action( 'transition_post_status', [ $this, 'sync_pll_translations_to_draft' ], 10, 3 );
 
 		add_action( 'template_redirect', [ $this, 'auto_detect_geo_and_language' ], 1 );
-//		add_action( 'wp_head', [ $this, 'add_meta_pixel' ] );
 
 		add_action( 'admin_post_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
 		add_action( 'admin_post_nopriv_welcome_modal', [ 'Iwpdev\Antara\Main', 'welcome_modal_handler' ] );
@@ -854,30 +853,5 @@ class Main {
 		}
 	}
 
-	/**
-	 * Output Meta Pixel tracking code.
-	 *
-	 * @return void
-	 */
-	public static function add_meta_pixel(): void {
-		?>
-		<!-- Meta Pixel Code -->
-		<script>
-			!function(f,b,e,v,n,t,s)
-			{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-				n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-				if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-				n.queue=[];t=b.createElement(e);t.async=!0;
-				t.src=v;s=b.getElementsByTagName(e)[0];
-				s.parentNode.insertBefore(t,s)}(window, document,'script',
-				'https://connect.facebook.net/en_US/fbevents.js');
-			fbq('init', '2103479450530794');
-			fbq('track', 'PageView');
-		</script>
-		<noscript><img height="1" width="1" style="display:none"
-					   src="https://www.facebook.com/tr?id=2103479450530794&ev=PageView&noscript=1"
-			/></noscript>
-		<!-- End Meta Pixel Code -->
-		<?php
-	}
+
 }

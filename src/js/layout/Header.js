@@ -139,7 +139,7 @@ const Header = ( $ ) => {
 
 	if ( ! header ) return;
 	let lastScrollY = window.scrollY;
-	const banner = document.querySelector( '.banner' );
+	const banner = document.querySelector( '.banner , .banner-events' );
 
 	if ( banner && 'IntersectionObserver' in window ) {
 		const themeObserver = new IntersectionObserver( ( [ entry ] ) => {

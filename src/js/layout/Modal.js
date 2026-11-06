@@ -116,7 +116,7 @@ const Modal = ( $ ) => {
 	$( '.read-more' ).click( function( e ) {
 		e.preventDefault();
 		const currentLang = getLanguage();
-		const translations = translateText[ currentLang ] || translateText[ 'nl' ];
+		const translations = translateText[ currentLang ] || translateText['nl'];
 		const $this = $( this );
 		const $hiddenText = $this.parent().parent().find( '.hidden-text' );
 		const $icon = $this.find( '.fas' );
@@ -155,7 +155,7 @@ const Modal = ( $ ) => {
 	$( '.read-more-next' ).click( function( e ) {
 		e.preventDefault();
 		const currentLang = getLanguage();
-		const translations = translateText[ currentLang ] || translateText[ 'nl' ];
+		const translations = translateText[ currentLang ] || translateText['nl'];
 		const $this = $( this );
 		const $hiddenText = $this.next();
 		const $icon = $this.find( '.fas' );
@@ -188,7 +188,7 @@ const Modal = ( $ ) => {
 	$( '.read-more-text' ).click( function( e ) {
 		e.preventDefault();
 		const currentLang = getLanguage();
-		const translations = translateText[ currentLang ] || translateText[ 'nl' ];
+		const translations = translateText[ currentLang ] || translateText['nl'];
 		const $this = $( this );
 		const $hiddenContent = $this.prev();
 		const currentText = getElementText( $this );

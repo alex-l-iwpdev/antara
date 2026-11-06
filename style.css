@@ -18,8 +18,14 @@ body.home {
 
 header {
 	z-index: 999999 !important;
-}
 
+}
+@media (max-width:1199px){ 
+    .header { 
+        padding-left: 23px !important; 
+        padding-right: 23px !important; 
+    } 
+}
 .home .header:not(.fixed) .location-wrapper .brx-submenu-toggle:after,
 .home .header:not(.fixed) .location-wrapper svg,
 body.home .header:not(.fixed) .header-right-wrapper .Language-wrapper .current-lang-display:after,

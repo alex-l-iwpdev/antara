@@ -952,6 +952,7 @@ body:has(.banner){
     .header_logo,
     .audio-btn,
     .Language-wrapper svg,
+    .current-lang-display:after,
     .btn-menu {
       filter: brightness(0) saturate(100%) invert(96%) sepia(100%) saturate(12%) hue-rotate(237deg) brightness(103%) contrast(103%) !important;
     }
@@ -964,6 +965,7 @@ body:has(.banner){
         }
         .header_logo,
         .audio-btn,
+        .current-lang-display:after,
         .Language-wrapper svg,
         .btn-menu {
           filter: brightness(0) saturate(100%) invert(8%) sepia(26%) saturate(7%) hue-rotate(321deg) brightness(101%) contrast(72%) !important;
