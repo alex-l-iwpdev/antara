@@ -699,7 +699,8 @@ body{
                 justify-content: center;
                 background: rgba(51, 51, 51, 0.45);
                 box-shadow: 0 7.569px 25.231px 0 rgba(0, 0, 0, 0.25);
-                backdrop-filter: blur(15.769231796264648px); 
+                backdrop-filter: blur(15.769231796264648px);
+                color: #fff; 
                 @media (min-width: 768px) and (max-width: 1919px) {
                     width: 2.083vw;
                     height: 2.083vw;
@@ -4413,9 +4414,10 @@ body{
 }
 .place-section{
     padding: 120px 0;
-    
+    margin: 24px 0 11px;
     @media (min-width: 768px) and (max-width: 1919px) {
         padding: 6.25vw 0;
+        margin: 1.25vw 0 0.573vw;    
     }
     @media(max-width:767px){
         padding: 100px 0;
@@ -4423,7 +4425,7 @@ body{
     &.nl{
         .place-item{
             .desc{
-                height: calc(100cqw * 0.65);  
+                height: calc(100cqw * 0.72);  
                 @media (max-width:767px){
                     height:auto ;
                 }  
@@ -4451,7 +4453,7 @@ body{
     &.es{
         .place-item{
             .desc{
-                height: calc(100cqw * 0.68);  
+                height: calc(100cqw * 0.70);  
                 @media (max-width:767px){
                     height:auto ;
                 }  
@@ -4478,7 +4480,7 @@ body{
     &.fr{
         .place-item{
             .desc{
-                height: calc(100cqw * 0.67);  
+                height: calc(100cqw * 0.74);  
                 @media (max-width:767px){
                     height:auto ;
                 } 
@@ -4730,15 +4732,18 @@ body{
         font-size: 28px;
         font-weight: 400;
         line-height: 1.3; 
-        margin-bottom: 40px; 
+        margin-bottom: 12px;
         @media (min-width: 768px) and (max-width: 1919px) {
             font-size: 1.458vw;
-            margin-bottom: 2.083vw;
+            margin-bottom: 0.583vw; 
         }
         @media(max-width:767px){
             font-size: 18px; 
             margin-bottom: 30px;
         } 
+    }
+    .brxe-text.small-text p{ 
+        margin-bottom: calc(5px + 0.42vw); 
     }
     .brxe-text.small-text p,
     .brxe-text-basic{
@@ -4863,10 +4868,8 @@ body{
         border-radius: 16px;
         border: 1px solid rgba(51, 51, 51, 0.30);
         background: rgba(246, 240, 238, 0.20);
-        backdrop-filter: blur(5px);
-        overflow: hidden; 
         margin-top: 50px; 
-        container-type: inline-size;
+        container-type: inline-size; 
         margin-bottom: 40px;
         @media (min-width: 768px) and (max-width: 1919px) { 
             border-radius: 0.833vw;
@@ -4881,7 +4884,7 @@ body{
         .desc{
             padding: 30px; 
             width: 100%;
-            height: calc(100cqw * 0.65);   
+            height: calc(100cqw * 0.73);   
             display: flex; 
             flex-direction: column;
             @media (min-width: 768px) and (max-width: 1919px) { 
@@ -5383,24 +5386,24 @@ body{
     .hidden{
         display: none;
         position: absolute;
+        backdrop-filter: blur(20px);
         top: calc(100% + 10px); 
         left: 0;
         min-width: max-content;
         padding: 20px 25px;
         background: rgba(51, 51, 51, 0.45); 
         border: 1px solid rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(20px);
         box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.25);
         z-index: 10;
         border-radius: 20px;
         gap: 15px;
         display: flex;
-        height: 0;
         overflow: hidden; 
         pointer-events: none; 
         flex-direction: column;
         opacity: 0;
         transition: all 0.3s ease; 
+        
         @media (min-width: 768px) and (max-width: 1919px) { 
             padding: 1.042vw 1.302vw;
             border-radius: 1.042vw;  
@@ -5408,7 +5411,6 @@ body{
         }
         &.open{
             pointer-events: auto; 
-            height: auto;
             opacity: 1;
             visibility: visible;
         }
@@ -5433,7 +5435,7 @@ body{
                 position: relative;
                 width: 12px;
                 height: 12px;
-                background-image: url('/wp-content/uploads/2026/10/chevron-right.svg');
+                background-image: url('/wp-content/uploads/2026/06/chevron-right-1.svg') !important;
                 background-size: contain;
                 background-position: center;
                 background-repeat: no-repeat;

@@ -24,3 +24,4 @@ add_action(
 require_once __DIR__ . '/vendor/autoload.php';
 
 new Main();
+
