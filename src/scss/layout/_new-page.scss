@@ -651,7 +651,6 @@ body{
         
         @media (min-width: 768px) and (max-width: 1919px) {
             bottom: 1.563vw !important;
-            top: calc(100vw - 7.422vw) !important;
         }
         @media (max-width: 767px){ 
             bottom: auto !important;
@@ -704,6 +703,19 @@ body{
                 right: 60px !important;
             }  
         }
+         svg{
+            width: 18px !important;
+            height: 15px !important;
+            @media (min-width: 768px) and (max-width: 1919px) {
+                width: 0.938vw !important;
+                height: 0.781vw !important;
+            }
+            @media (max-width:767px){ 
+                width: 14px !important;
+                height: 14px !important;
+            }
+        }  
+        
     }
     .brxe-slider{
         margin-top: 50px;
@@ -767,9 +779,23 @@ body{
     }
 }
 .info-section{
-    padding: 180px 0 120px;
+    padding-top: 180px;
+    padding-bottom: 120px;
+    &:has(.four-columns){
+        padding-top: 170px;
+        padding-bottom: 110px;
+        @media (min-width: 768px) and (max-width: 1919px) {
+            padding-top: 8.854vw;
+            padding-bottom: 5.729vw;
+        }
+        @media (max-width: 767px){
+            padding-top: 100px;
+            padding-bottom: 85px;
+        } 
+    }
     @media (min-width: 768px) and (max-width: 1919px) {
-        padding: 9.375vw 0 6.25vw;
+        padding-top: 9.375vw;
+        padding-bottom: 6.25vw;
     }
     @media (max-width: 767px){
         padding-top: 100px;
@@ -1000,17 +1026,19 @@ body{
         }   
     }
     &:has(.small){
+        padding-top: 100px;
         padding-bottom: 90px;
         @media (min-width: 768px) and (max-width: 1919px) {
             padding-bottom: 4.688vw;
+            padding-top: 5.208vw;
         }
         @media (max-width: 767px){
             padding-bottom: 0px;  
         }
         .brxe-list{
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             @media (min-width: 768px) and (max-width: 1919px) {
-                margin-bottom: 1.563vw;
+                margin-bottom: 1.042vw;
             }
             @media (max-width: 767px){
                 margin-top: 10px;
@@ -1051,11 +1079,16 @@ body{
     .brxe-text-basic.middle{
         font-size: 20px;
         font-weight: 400;
+        margin-bottom: 35px;
         @media (min-width: 768px) and (max-width: 1919px) {
             font-size: 1.042vw;
+            margin-bottom: 1.823vw;
         }
         @media (max-width: 767px){
             font-size: 16px;  
+        }
+        &:last-child{
+            margin-bottom: 0px;  
         }   
     }
     h3{
@@ -1099,10 +1132,10 @@ body{
         margin-top: auto;
         &.large{
             font-size: 28px;
-            margin-bottom: 35px;
+            margin-bottom: 25px;
             @media (min-width: 768px) and (max-width: 1919px) {
                 font-size: 1.458vw;
-                margin-bottom: 1.823vw;
+                margin-bottom: 1.302vw;
             }
             @media (max-width: 767px){
                 font-size: 20px; 
@@ -1121,10 +1154,10 @@ body{
         font-weight: 400;
         font-size: 20px;
         line-height: 1.3;
-        margin-bottom: 30px;
+        margin-bottom: 25px;
         @media (min-width: 768px) and (max-width: 1919px) {
             font-size: 1.042vw;
-            margin-bottom: 1.563vw;
+            margin-bottom: 1.302vw;
         }
         @media (max-width: 767px){
             font-size: 16px;  
@@ -1136,10 +1169,10 @@ body{
         color: #333;
         font-weight: 400;
         line-height: 1.2;
-        margin-bottom: 60px;
+        margin-bottom: 30px;
         @media (min-width: 768px) and (max-width: 1919px) {
             font-size: 4.167vw;
-            margin-bottom: 3.125vw; 
+            margin-bottom: 1.563vw; 
         } 
         @media (max-width: 767px){
             font-size: 44px; 
@@ -1151,20 +1184,30 @@ body{
         }
 
     }
+    
     p{
         color: #333;   
         font-size: 28px;
         font-weight: 400;
         line-height: 1.3;
-        margin-bottom: 30px;
+        margin-bottom: 25px;
         @media (min-width: 768px) and (max-width: 1919px) {
             font-size: 1.458vw;
-            margin-bottom: 1.563vw;
+            margin-bottom: 1.302vw;
         }
         @media (max-width: 767px){
             font-size: 20px;  
             margin-bottom: 20px;
         }   
+    }
+    .brxe-text.middle p{
+        font-size: 18px;
+        @media (min-width: 768px) and (max-width: 1919px) {
+            font-size: 0.938vw;
+        }
+        @media (max-width: 767px){
+            font-size: 13px;   
+        } 
     }
     .brxe-list{
         margin-bottom: 40px;
@@ -1181,9 +1224,20 @@ body{
             font-weight: 400;
             line-height: 1.25;
             letter-spacing: -2%; 
-            padding: 20px 0 20px 24px;
+            padding: 17px 0 17px 24px;
             border-top: 1px solid rgba(51, 51, 51, 0.30);
             position: relative;
+            .content{
+                .title{
+                    font-size: 20px;
+                    @media (min-width: 768px) and (max-width: 1919px) {
+                        font-size: 1.042vw;
+                    }
+                    @media (max-width: 767px){
+                        font-size: 16px;  
+                    }   
+                }
+            }
             &:before{
                 content: '';
                 width: 12px;
@@ -1192,11 +1246,11 @@ body{
                 position: absolute;
                 left: 0;
                 border-radius: 50%;
-                top: 26px;
+                top: 25px;
                 @media (min-width: 768px) and (max-width: 1919px){
                     width: 0.625vw;
-                    height: 0.625vw;
-                    top: 1.367vw;
+                    height: 0.625vw; 
+                    top: 1.302vw; 
                     border-width: 0.078vw;
                 }
                 @media (max-width: 767px){
@@ -1211,7 +1265,7 @@ body{
             }
             @media (min-width: 768px) and (max-width: 1919px) {
                 font-size: 0.938vw;
-                padding: 1.042vw 0 1.042vw 1.25vw;
+                padding: 0.885vw 0 0.885vw 1.25vw;
             }
             @media (max-width: 767px){
                 font-size: 14px;
@@ -2076,7 +2130,7 @@ body{
         font-size: 80px;
         line-height: 1;
         letter-spacing: -2%;
-        margin-bottom: 40px; 
+        margin-bottom: 35px; 
         @media (min-width: 768px) and (max-width: 1919px) {
             font-size: 4.167vw;
             margin-bottom: 2.083vw; 
@@ -2444,9 +2498,18 @@ body{
     }
 }
 .news-section{
+    & > .brxe-container{
+        padding-top: 135px;
+        padding-bottom: 305px;
+        @media (min-width: 768px) and (max-width: 1919px) {
+            padding-top: 7.031vw;
+            padding-bottom: 15.885vw;   
+        }   
+    }
     @media (max-width: 767px){
         & > .brxe-container{
             padding-top: 60px !important;  
+            padding-bottom: 150px !important;  
         }
         .experience-items{
             overflow-x: none;
@@ -4079,7 +4142,7 @@ body{
     }
     .brxe-block{
         &.text-block{
-            margin-top: 90px;
+            margin-top: 80px;
             @media (min-width: 768px) and (max-width: 1919px) {
                 margin-top: 4.688vw;
             } 
@@ -4090,10 +4153,10 @@ body{
                 font-weight: 400;
                 font-size: 28px;
                 line-height: 1.3; 
-                margin-bottom: 40px;
+                margin-bottom: 27px;
                 @media (min-width: 768px) and (max-width: 1919px) {
                     font-size: 1.458vw;
-                    margin-bottom: 2.083vw;
+                    margin-bottom: 1.406vw;
                 }
                 @media (max-width: 767px){
                     font-size: 20px;
@@ -4101,7 +4164,7 @@ body{
                 }
             }
             .brxe-text{
-                margin-bottom: 40px;
+                margin-bottom: 35px;
                 p{
                     font-weight: 400;
                     font-size: 20px;
@@ -4137,9 +4200,18 @@ body{
     }
 }
 .stillness-banner-section{
-    margin-bottom: 280px;
+    margin-bottom: 200px;
+    & + .retreat-feeling-section{
+        padding-bottom: 135px;
+        @media (min-width: 768px) and (max-width: 1919px) {
+            padding-bottom: 7.031vw;  
+        }
+        @media (max-width: 767px){
+            padding-bottom: 60px;  
+        } 
+    }
     @media (min-width: 768px) and (max-width: 1919px) {
-        margin-bottom: 14.583vw;
+        margin-bottom: 10.417vw;
     } 
     @media (max-width:767px){
         margin-bottom: 100px; 
@@ -4590,17 +4662,19 @@ body{
                     }
                 }
             }
-            &:not(:has(.black-button)){
-                padding-top: 50px;
+            @media (max-width:767px){ 
+                &:not(:has(.black-button)){
+                    padding-top: 50px;
+                }
             }
         }
         .td{
-            padding: 29px 0;
+            padding: 25px 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             @media (min-width: 768px) and (max-width: 1919px) {
-                padding: 1.51vw 0;
+                padding: 1.302vw 0;
             }
             @media (max-width:767px){
                 padding: 22px 0; 
@@ -4644,9 +4718,9 @@ body{
             }
             &:nth-last-of-type(2){
                 margin-right: 12px;
-                width: 187px;
+                width: 230px;
                 @media (min-width: 768px) and (max-width: 1919px) {
-                    width: 9.74vw;
+                    width: 11.979vw; 
                 } 
                 @media (max-width:767px){
                     width: 100%; 
@@ -4676,7 +4750,7 @@ body{
     }
 }
 .text-section{
-    padding: 150px 0 210px;
+    padding: 150px 0 190px;
     @media (min-width: 768px) and (max-width: 1919px) {
         padding: 7.813vw 0 10.938vw;
     }
@@ -4708,10 +4782,10 @@ body{
         font-size: 22px;
         line-height: 1.35;
         letter-spacing: -2%;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         @media (min-width: 768px) and (max-width: 1919px) {
             font-size: 1.146vw;
-            margin-bottom: 1.042vw;
+            margin-bottom: 1.302vw;
         }
         @media (max-width:767px){
             font-size: 18px;
@@ -4719,16 +4793,11 @@ body{
         }
     }
     .line{
-        margin-bottom: 25px;
+        margin-bottom: 30px;
         border-color: rgba(51, 51, 51, 0.3);
         @media (max-width:767px){ 
             margin: 45px 0; 
         } 
-    }
-    .brxe-block{
-        &:has(.line){
-
-        }
     }
     .brxe-text{
         &.large{
@@ -6613,7 +6682,7 @@ body{
 }
 .banner-events{
     .banner-events-description{
-        padding: 144px 0 40px;
+        padding: 130px 0 40px;
         @media (min-width: 1201px) and (max-width: 1919px) { 
             padding: 7.5vw 0 2.083vw;  
         }
@@ -6636,13 +6705,7 @@ body{
         }
     }
     .brxe-breadcrumbs{
-        margin: 0 0 20px !important;
-        @media (min-width: 768px) and (max-width: 1919px) { 
-            margin: 0 0 1.042vw !important;
-        }
-        @media(max-width:767px){ 
-            margin: 0 0 10px !important; 
-        }
+        margin: 0 0 0px !important;
     }
     .brxe-text-basic{ 
         margin-top: auto;
@@ -6662,7 +6725,7 @@ body{
         font-weight: 400;
         line-height: 95%;
         letter-spacing: -2%;
-        margin: 40px 0 20px;
+        margin: 40px 0 10px;
         @media (min-width: 768px) and (max-width: 1919px) { 
             font-size: 6.25vw;
             margin: 2.083vw 0 1.042vw; 
@@ -6688,9 +6751,13 @@ body{
             }
         }
     }
-    @media(max-width:767px){ 
-        .brxe-button{
-            margin-top: 25px !important;
+    .bricks-button{
+        height: 44px;
+        @media (min-width: 768px) and (max-width: 1919px) { 
+            height: 2.292vw;
+        }
+        @media(max-width:767px){  
+            height: 34px; 
         }
     }
 }
@@ -7321,10 +7388,10 @@ body{
 }
 .tags-events{
     gap: 50px;
-    margin-top: 75px;
+    margin-top: 95px;
     @media (min-width: 768px) and (max-width: 1919px) { 
         gap: 2.604vw;
-        margin-top: 3.906vw;
+        margin-top: 4.948vw;
     } 
     @media(max-width:767px){ 
         gap: 20px;
