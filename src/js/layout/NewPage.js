@@ -52,121 +52,134 @@ const NewPage = ( $ ) => {
         const $sections = $('.experience-section, .scroll-slider-section');
         if (!$sections.length) return;
 
-        $sections.each(function () {
-            const $section = $(this);
-            const $items = $section.find('.experience-items, .scroller-wrapper');
-            if (!$items.length) return;
+        const isEventsPage = $('body').hasClass('events-page');
 
-            const $cards = $items.find('.experience-item, .scroller-item');
-            if (!$cards.length) return;
+        const setupScroll = () => {
+            $sections.each(function () {
+                const $section = $(this);
+                const $items = $section.find('.experience-items, .scroller-wrapper');
+                if (!$items.length) return;
 
-            const cards = $cards.get(); // native elements for GSAP
+                const $cards = $items.find('.experience-item, .scroller-item');
+                if (!$cards.length) return;
 
-            const getScrollDistance = () => {
-                const firstCard = cards[0];
-                const lastCard = cards[cards.length - 1];
-                if (!firstCard || !lastCard) return 0;
+                const cards = $cards.get(); // native elements for GSAP
 
-                const sectionEl = $section[0];
-                const containerEl = $items[0];
-                const parentEl = containerEl.parentElement;
+                const getScrollDistance = () => {
+                    const firstCard = cards[0];
+                    const lastCard = cards[cards.length - 1];
+                    if (!firstCard || !lastCard) return 0;
 
-                const sectionRect = sectionEl.getBoundingClientRect();
-                const firstCardRect = firstCard.getBoundingClientRect();
-                const lastCardRect = lastCard.getBoundingClientRect();
-                const currentX = gsap.getProperty(firstCard, 'x') || 0;
+                    const sectionEl = $section[0];
+                    const containerEl = $items[0];
+                    const parentEl = containerEl.parentElement;
 
-                // Untransformed distance from section's left edge to the first card
-                const startLeft = Math.max(0, (firstCardRect.left - sectionRect.left) - currentX);
+                    const sectionRect = sectionEl.getBoundingClientRect();
+                    const firstCardRect = firstCard.getBoundingClientRect();
+                    const lastCardRect = lastCard.getBoundingClientRect();
+                    const currentX = gsap.getProperty(firstCard, 'x') || 0;
 
-                // Margin of the last card
-                const lastCardStyle = window.getComputedStyle(lastCard);
-                const lastCardMarginRight = parseFloat(lastCardStyle.marginRight) || 0;
+                    // Untransformed distance from section's left edge to the first card
+                    const startLeft = Math.max(0, (firstCardRect.left - sectionRect.left) - currentX);
 
-                // Untransformed distance from section's left edge to the right edge of the last card
-                const endRight = ((lastCardRect.right - sectionRect.left) - currentX) + lastCardMarginRight;
+                    // Margin of the last card
+                    const lastCardStyle = window.getComputedStyle(lastCard);
+                    const lastCardMarginRight = parseFloat(lastCardStyle.marginRight) || 0;
 
-                // Section paddings
-                const sectionStyle = window.getComputedStyle(sectionEl);
-                const sectionPaddingLeft = parseFloat(sectionStyle.paddingLeft) || 0;
-                const sectionPaddingRight = parseFloat(sectionStyle.paddingRight) || 0;
+                    // Untransformed distance from section's left edge to the right edge of the last card
+                    const endRight = ((lastCardRect.right - sectionRect.left) - currentX) + lastCardMarginRight;
 
-                // Container paddings
-                const containerStyle = window.getComputedStyle(containerEl);
-                const containerPaddingLeft = parseFloat(containerStyle.paddingLeft) || 0;
-                const containerPaddingRight = parseFloat(containerStyle.paddingRight) || 0;
+                    // Section paddings
+                    const sectionStyle = window.getComputedStyle(sectionEl);
+                    const sectionPaddingLeft = parseFloat(sectionStyle.paddingLeft) || 0;
+                    const sectionPaddingRight = parseFloat(sectionStyle.paddingRight) || 0;
 
-                // Parent (e.g. .brxe-container) paddings
-                const parentStyle = parentEl && parentEl !== sectionEl ? window.getComputedStyle(parentEl) : null;
-                const parentPaddingLeft = parentStyle ? (parseFloat(parentStyle.paddingLeft) || 0) : 0;
-                const parentPaddingRight = parentStyle ? (parseFloat(parentStyle.paddingRight) || 0) : 0;
+                    // Container paddings
+                    const containerStyle = window.getComputedStyle(containerEl);
+                    const containerPaddingLeft = parseFloat(containerStyle.paddingLeft) || 0;
+                    const containerPaddingRight = parseFloat(containerStyle.paddingRight) || 0;
 
-                // The offset from the section/screen edge on the left
-                const leftOffset = Math.max(
-                    startLeft,
-                    sectionPaddingLeft,
-                    containerPaddingLeft,
-                    parentPaddingLeft
-                );
+                    // Parent (e.g. .brxe-container) paddings
+                    const parentStyle = parentEl && parentEl !== sectionEl ? window.getComputedStyle(parentEl) : null;
+                    const parentPaddingLeft = parentStyle ? (parseFloat(parentStyle.paddingLeft) || 0) : 0;
+                    const parentPaddingRight = parentStyle ? (parseFloat(parentStyle.paddingRight) || 0) : 0;
 
-                // Desired right offset to mirror the left spacing / preserve section padding
-                const isMobile = window.innerWidth <= 767;
-                const rightOffset = Math.max(
-                    leftOffset,
-                    sectionPaddingRight,
-                    containerPaddingRight,
-                    parentPaddingRight,
-                    isMobile ? 20 : 0
-                );
+                    // The offset from the section/screen edge on the left
+                    const leftOffset = Math.max(
+                        startLeft,
+                        sectionPaddingLeft,
+                        containerPaddingLeft,
+                        parentPaddingLeft
+                    );
 
-                // Visible width of the section / viewport
-                const sectionWidth = Math.min(sectionEl.clientWidth, window.innerWidth);
+                    // Desired right offset to mirror the left spacing / preserve section padding
+                    const isMobile = window.innerWidth <= 767;
+                    const rightOffset = Math.max(
+                        leftOffset,
+                        sectionPaddingRight,
+                        containerPaddingRight,
+                        parentPaddingRight,
+                        isMobile ? 20 : 0
+                    );
 
-                // Distance so the last card finishes exactly with the section's right offset visible
-                const distance = endRight - sectionWidth + rightOffset;
+                    // Visible width of the section / viewport
+                    const sectionWidth = Math.min(sectionEl.clientWidth, window.innerWidth);
 
-                return Math.max(0, distance);
-            };
+                    // Distance so the last card finishes exactly with the section's right offset visible
+                    const distance = endRight - sectionWidth + rightOffset;
 
-            const holdPx = () => window.innerHeight * 0.3;
-            const isScrollSlider = $section.hasClass('scroll-slider-section');
+                    return Math.max(0, distance);
+                };
 
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: isScrollSlider ? $section[0] : $items[0],
-                    pin: $section[0],
-                    start: () => (isScrollSlider && window.innerWidth > 767 ? 'bottom bottom' : 'center center'),
-                    end: () => `+=${Math.max(getScrollDistance(), window.innerHeight * 0.7) + holdPx() * 2}`, 
-                    scrub: 1,
-                    invalidateOnRefresh: true,
-                    anticipatePin: 1,
-                },
+                const holdPx = () => window.innerHeight * 0.3;
+                const isScrollSlider = $section.hasClass('scroll-slider-section');
+
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: isScrollSlider ? $section[0] : $items[0],
+                        pin: $section[0],
+                        start: () => (isScrollSlider && window.innerWidth > 767 ? 'bottom bottom' : 'center center'),
+                        end: () => `+=${Math.max(getScrollDistance(), window.innerHeight * 0.7) + holdPx() * 2}`, 
+                        scrub: 1,
+                        invalidateOnRefresh: true,
+                        anticipatePin: 1,
+                    },
+                });
+
+                // Hold at start
+                tl.to(cards, { x: 0, duration: 0.3, ease: 'none' });
+
+                // Horizontal scroll
+                tl.to(cards, {
+                    x: () => -getScrollDistance(),
+                    duration: 1,
+                    ease: 'none',
+                });
+
+                // Hold at end
+                tl.to(cards, {
+                    x: () => -getScrollDistance(),
+                    duration: 0.3,
+                    ease: 'none',
+                });
+
+                // Refresh on image load
+                $section.find('img').each(function () {
+                    if (!this.complete) {
+                        $(this).one('load error', () => ScrollTrigger.refresh());
+                    }
+                });
             });
+        };
 
-            // Hold at start
-            tl.to(cards, { x: 0, duration: 0.3, ease: 'none' });
-
-            // Horizontal scroll
-            tl.to(cards, {
-                x: () => -getScrollDistance(),
-                duration: 1,
-                ease: 'none',
+        if (isEventsPage) {
+            const mm = gsap.matchMedia();
+            mm.add('(min-width: 768px)', () => {
+                setupScroll();
             });
-
-            // Hold at end
-            tl.to(cards, {
-                x: () => -getScrollDistance(),
-                duration: 0.3,
-                ease: 'none',
-            });
-
-            // Refresh on image load
-            $section.find('img').each(function () {
-                if (!this.complete) {
-                    $(this).one('load error', () => ScrollTrigger.refresh());
-                }
-            });
-        });
+        } else {
+            setupScroll();
+        }
 
         // Global refresh after fonts/window load to ensure all sections calculate correctly
         if (document.fonts && document.fonts.ready) {

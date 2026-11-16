@@ -73,6 +73,18 @@ const GeoContent = ( $ ) => {
 		$( this ).closest( '.popup-cal' ).removeClass('popup-cal-open');
 		$('body').removeClass('popup-active');
 	} );
+	$('.modal-events .close').click(function(){
+		$(this).parents( '.modal-events' ).removeClass('popup-cal-open'); 
+		$('body').removeClass('popup-active'); 
+	});
+	$(document).mouseup(function (e)  {
+		var folder = $(".modal-content").parent();
+		if (!folder.is(e.target) && folder.has(e.target).length === 0) {
+			folder.removeClass('popup-cal-open');
+		}
+	});
+
+	
 };
 
 export default GeoContent;

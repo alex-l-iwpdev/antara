@@ -1,7 +1,7 @@
 /*
 Theme Name: Bricks Child
 Template: bricks
-Version: 1.3.2
+Version: 1.3.10
 Author: ALex L I WP DEV
 Description: Child theme for bricks
 */
@@ -20,12 +20,14 @@ header {
 	z-index: 999999 !important;
 
 }
-@media (max-width:1199px){ 
-    .header { 
-        padding-left: 23px !important; 
-        padding-right: 23px !important; 
-    } 
+
+@media (max-width: 1199px) {
+	.header {
+		padding-left: 23px !important;
+		padding-right: 23px !important;
+	}
 }
+
 .home .header:not(.fixed) .location-wrapper .brx-submenu-toggle:after,
 .home .header:not(.fixed) .location-wrapper svg,
 body.home .header:not(.fixed) .header-right-wrapper .Language-wrapper .current-lang-display:after,
@@ -645,9 +647,11 @@ ul.list-two-colums .description {
 	cursor: pointer;
 
 }
+
 footer .button span {
 	min-width: max-content;
 }
+
 .brxe-button:before {
 	display: none !important;
 }
@@ -961,9 +965,11 @@ body {
 footer .footer-item.brxe-div {
 	max-width: 30.69rem !important;
 }
-footer .footer-item.brxe-div .footer-form-wrapper{
+
+footer .footer-item.brxe-div .footer-form-wrapper {
 	width: 100%;
 }
+
 footer .join-the-community .gform_fields {
 	gap: 10px !important;
 }
@@ -1078,15 +1084,17 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 	.brxe-accordion-nested .listening .accordion-title-wrapper {
 		min-height: 64px !important;
 	}
+
 	footer .footer-form-wrapper.brxe-div .gfield_html {
 		position: absolute !important;
 		left: 180px;
 		width: calc(100% - 180px);
 	}
+
 	footer .footer-form-wrapper.brxe-div .bricks-button i::before {
-	  font-size: 18px !important;
-	  position: relative;
-	  top: 0px !important;
+		font-size: 18px !important;
+		position: relative;
+		top: 0px !important;
 	}
 }
 
@@ -1140,10 +1148,6 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 
 	.brxe-button.bricks-background-primary {
 		font-size: 14px !important;
-	}
-
-	br {
-		display: none !important;
 	}
 
 	span.current-lang-label {
@@ -1252,6 +1256,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 	footer .footer-form-wrapper.brxe-div .gform-body input {
 		border-bottom: 1px solid var(--A--Color--Beige) !important;
 	}
+
 	footer .footer-form-wrapper.brxe-div .gfield_html {
 		font-size: 10px !important;
 		line-height: 1.4;
@@ -1390,9 +1395,11 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 	width: 1.042vw !important;
 	height: 0.521vw !important;
 }
-.contact-form .selectric .button:after{
+
+.contact-form .selectric .button:after {
 	display: none !important;
 }
+
 .contact-form .selectric .button:before {
 	content: '' !important;
 	position: absolute;
@@ -1410,12 +1417,14 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 	position: relative;
 
 }
-.contact-form .selectric .label{
+
+.contact-form .selectric .label {
 	font-size: 1.146vw !important;
 	font-weight: 400 !important;
 	color: #333 !important;
 	margin: 0 !important;
 }
+
 .contact-form .selectric {
 	display: flex;
 	flex-direction: row;
@@ -1423,7 +1432,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 	align-items: center;
 	height: 2.083vw !important;
 	width: 100%;
-	border:none;
+	border: none;
 	border-bottom: 1px solid #333 !important;
 	font-size: 1.146vw !important;
 	font-weight: 400 !important;
@@ -1461,10 +1470,12 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 	margin: 0;
 	padding: 0;
 }
+
 .selectric-items li:hover,
-.selectric-items li.highlighted{
+.selectric-items li.highlighted {
 	background-color: transparent !important;
 }
+
 .contact-form .selectric-items li {
 	font-weight: 400;
 	font-size: 1.042vw;
@@ -1474,6 +1485,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 	transition: all 0.3s ease;
 	list-style: none !important;
 }
+
 .gform_button.button span {
 	display: block;
 	position: relative;
@@ -1482,6 +1494,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 	font-weight: 400;
 
 }
+
 .contact-form .selectric-items li:hover {
 	opacity: 0.5;
 }
@@ -1523,6 +1536,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 	.contact-form .textarea textarea {
 		height: 275px !important;
 	}
+
 	.contact-form .selectric .label,
 	.contact-form .selectric,
 	.contact-form .textarea label,
@@ -1537,6 +1551,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 	.contact-form .gform_body [class*="gfield--input-"].focus label {
 		font-size: 13px !important;
 	}
+
 	.gform_button.button span,
 	.contact-form .selectric-items li {
 		font-size: 20px !important;
@@ -1587,7 +1602,8 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 		border-radius: 12px !important;
 		padding: 32px !important;
 	}
-	.contact-form .selectric .label{
+
+	.contact-form .selectric .label {
 		font-size: 22px !important;
 	}
 }
@@ -1613,10 +1629,12 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 		left: 20px !important;
 		top: 20px !important;
 	}
+
 	.gform_button.button span,
-	.contact-form .selectric .label{
+	.contact-form .selectric .label {
 		font-size: 16px !important;
 	}
+
 	.contact-form .selectric,
 	.contact-form .gform_body .gform_fields legend,
 	.contact-form .gform_body .gform_fields .input label {
@@ -1679,6 +1697,7 @@ footer .footer-form-wrapper.brxe-div .bricks-button:before {
 		height: 9px !important;
 	}
 }
-.brxe-polylang-language-switcher li.lang-item-ca{
-	display:none !important;
+
+.brxe-polylang-language-switcher li.lang-item-ca {
+	display: none !important;
 }
